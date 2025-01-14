@@ -67,6 +67,25 @@ services:
   #   networks:
   #     - media
 
+  wordpress:
+    container_name: wordpress
+    image: wordpress:latest
+    restart: unless-stopped
+    volumes:
+      - ./wordpress:/app/data
+
+  tunnel:
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run --token= "$TUNNEL_TOKEN"
+    env_file:
+      - .env
+    networks:
+      default:
+       external:
+      name: wordpress
+  
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
