@@ -7,8 +7,18 @@ services:
       - PGID=1000
       - TZ=Etc/UTC
     volumes:
-      - /path/to/config:/config
-      - /path/to/downloads:/downloads
+      - jackett_config:/config
+      - jackett_downloads:/downloads
     ports:
       - 9117:9117
     restart: unless-stopped
+    networks:
+      - media
+
+networks:
+  media:
+    driver: bridge
+
+volumes:
+  jackett_config:
+  jackett_downloads:
