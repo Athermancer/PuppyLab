@@ -63,7 +63,7 @@ services:
        - PGID=1000
        - TZ=Etc/UTC
     volumes:
-       - overseerr_config:/config
+       - ../.cnf:/config
     ports:
        - 5055:5055
     restart: unless-stopped
