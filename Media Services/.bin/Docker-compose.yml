@@ -133,7 +133,10 @@ services:
     volumes:
       - ../Test:/data
       - ../Test:/config
+    networks:
+      - plex  
 networks:
+  plex:
   overseerr:
   media:
     driver: bridge
