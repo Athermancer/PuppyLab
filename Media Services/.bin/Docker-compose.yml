@@ -98,10 +98,19 @@ services:
     env_file: 
       - .env                     # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
+      # - USER=                  # Your NordVPN username
+      # - PASS=                  # Your NordVPN password
+      # - CYBER_SEC=             # Enable CyberSec (true/false)
+      # - OPENVPN_OPTS=          # Additional OpenVPN options
+      # - EXTRA_SUBNETS=         # Extra subnets to route through VPN
+      # - KILLSWITCH=            # Enable killswitch (true/false)
+      # - FIREWALL=              # Enable firewall (true/false)
+      # - TUNNEL=                # Enable tunnel (true/false)
+      # - DEBUG=                 # Enable debug mode (true/false)
       - TOKEN= "$NORDVPN_TOKEN"     # Required
       - CONNECT=United_States
       - TECHNOLOGY=NordLynx
-      - NETWORK=192.168.0.0/24  # So it can be accessed within the local network
+      - NETWORK=192.168.0.0/24   # Your local network
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
     ports:
