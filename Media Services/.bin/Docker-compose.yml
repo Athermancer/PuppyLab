@@ -91,38 +91,21 @@ services:
       - media
 
   vpn:
-    # NordVPN is a VPN service provider.
     image: ghcr.io/bubuntux/nordvpn
-    container_name: nordvpn
     cap_add:
-      - NET_ADMIN  # Required for VPN
-      - NET_RAW  # Required for VPN
-    env_file:
-      - .env  # Environment variables
-    environment:
-      - TOKEN="$NORDVPN_TOKEN"  # NordVPN token
-      # COUNTRY: Specifies the VPN server country.
-      # Possible options for COUNTRY:
-      # - us: United States
-      # - ca: Canada
-      # - uk: United Kingdom
-      # - de: Germany
-      # - fr: France
-      # - jp: Japan
-      # - au: Australia
-      # - nl: Netherlands
-      # - se: Sweden
-      # - no: Norway
-      # - ch: Switzerland
-      # - sg: Singapore
-      - COUNTRY=us  # VPN server country
-      - GROUP=p2p  # VPN server group
-      - TECHNOLOGY=NordLynx  # VPN technology
-      - WHITELIST=showrss.info,rarbg.to,yts.mx  # Whitelisted domains
+      - NET_ADMIN               # Required
+      - NET_RAW                 # Required
+    env_file: 
+      - .env                     # Required
+    environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
+      - TOKEN="$NORDVPN_TOKEN"     # Required
+      - CONNECT=United_States
+      - TECHNOLOGY=NordLynx
+      - NETWORK=192.168.0.0/24  # So it can be accessed within the local network
+    ports:
+      - 8080:8080
     sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1  # Disable IPv6
-    networks:
-      - torrents  # qBittorrent network
+      - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
   
   qbittorrent:
     # qBittorrent is a free and open-source BitTorrent client.
@@ -130,6 +113,7 @@ services:
     container_name: qbittorrent
     depends_on:
       - vpn  # Depends on VPN service
+    network_mode: service:vpn
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
@@ -143,8 +127,7 @@ services:
       - 6881:6881  # BitTorrent port
       - 6881:6881/udp  # BitTorrent UDP port
     restart: unless-stopped
-    networks:
-      - torrents  # qBittorrent network
+
   plex:
     # Plex is a media server that organizes video, music, and photos.
     image: linuxserver/plex
@@ -174,7 +157,6 @@ services:
 
 networks:
   media:
-  torrents:
 
 volumes:
   jackett_config:
