@@ -52,22 +52,43 @@ services:
     networks:
       - media
 
-  overseerr:
-    image: lscr.io/linuxserver/overseerr:latest
-    container_name: overseerr
+  # overseerr:
+  #   image: lscr.io/linuxserver/overseerr:latest
+  #   container_name: overseerr
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #   volumes:
+  #     - overseerr_config:/config
+  #   ports:
+  #     - 5055:5055
+  #   restart: unless-stopped
+  #   networks:
+  #     - media
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
     environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+      - WEBUI_PORT=8080
     volumes:
-      - overseerr_config:/config
+      - qbittorrent_config:/config
+      - qbittorrent_downloads:/downloads
     ports:
-      - 5055:5055
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
     restart: unless-stopped
     networks:
-      - media
+      - torrent
 
 networks:
+  torrent:
+    driver: bridge
   media:
     driver: bridge
 
@@ -81,3 +102,5 @@ volumes:
   radarr_movies:
   radarr_downloads:
   overseerr_config:
+  qbittorrent_config:
+  qbittorrent_downloads:
