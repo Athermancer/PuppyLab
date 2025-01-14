@@ -117,6 +117,8 @@ services:
       - 6881:6881  # BitTorrent port
       - 6881:6881/udp  # BitTorrent port
       - 8080:8080  # Web UI port
+    networks:
+      - vpn
   qbittorrent:
     # qBittorrent is a free and open-source BitTorrent client.
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -162,6 +164,7 @@ services:
       - media  # Plex network
 
 networks:
+  vpn:
   media:
 
 volumes:
