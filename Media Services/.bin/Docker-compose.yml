@@ -131,8 +131,8 @@ services:
       - VERSION=docker 
       - PLEX_CLAIM= claim-inz9ndjTAQZSkqdRx6Zq # Your claim token if needed
     volumes:
-      - /path/to/your/media:/data
-      - /path/to/your/plex/config:/config
+      - ../Test:/data
+      - ../Test:/config
 networks:
   overseerr:
   media:
