@@ -158,7 +158,6 @@ networks:
   plex:
   overseerr:
   media:
-    driver: bridge
 
 volumes:
   jackett_config:
