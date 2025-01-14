@@ -120,6 +120,19 @@ services:
        - 6881:6881
        - 6881:6881/udp
      restart: unless-stopped
+  plex:
+    image: linuxserver/plex
+    container_name: plex
+    network_mode: host 
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York 
+      - VERSION=docker 
+      - PLEX_CLAIM= claim-inz9ndjTAQZSkqdRx6Zq # Your claim token if needed
+    volumes:
+      - /path/to/your/media:/data
+      - /path/to/your/plex/config:/config
 networks:
   overseerr:
   media:
