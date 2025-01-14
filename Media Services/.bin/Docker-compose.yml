@@ -105,9 +105,7 @@ services:
 
 networks:
   overseerr:
-    driver: bridge
   torrent:
-    driver: bridge
   media:
     driver: bridge
 
