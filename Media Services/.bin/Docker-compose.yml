@@ -164,14 +164,11 @@ services:
       - ../Test:/config  # Configuration files
     ports:
       - 32400:32400  # Plex port
-      # - 3005:3005  # Plex port
-      # - 8324:8324  # Plex port
-      # - 32469:32469  # Plex port
-      # - 1900:1900  # Plex port
-      # - 32410:32410  # Plex port
-      # - 32412:32412  # Plex port
-      # - 32413:32413  # Plex port
-      # - 32414:32414  # Plex port
+      - 1900:1900/udp  # Plex port
+      - 5353:5353/udp  # Plex port
+      - 8324:8324/tcp  # Plex port
+      - 32410:32410/udp  # Plex port
+      - 32469:32469/tcp  # Plex port
     networks:
       - media  # Plex network
 
