@@ -69,7 +69,7 @@ services:
       - 5055:5055  # Web UI port
     restart: unless-stopped
     networks:
-      - overseerr
+      - media
 
   wordpress:
     # WordPress is a free and open-source content management system.
@@ -88,7 +88,7 @@ services:
     env_file:
       - .env  # Environment variables
     networks:
-      - overseerr
+      - media
 
   vpn:
     # NordVPN is a VPN service provider.
@@ -152,11 +152,9 @@ services:
       - 32413:32413  # Plex port
       - 32414:32414  # Plex port
     networks:
-      - plex  # Plex network
+      - media  # Plex network
 
 networks:
-  plex:
-  overseerr:
   media:
 
 volumes:
