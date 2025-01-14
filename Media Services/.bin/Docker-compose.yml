@@ -120,35 +120,12 @@ services:
        - 6881:6881
        - 6881:6881/udp
      restart: unless-stopped
-    
-# Make sure that you can access your server from the internet
-# for example configure dmz on your router
-# the torrent service would be available at https://mytorrent.duckdns.org
-  # qbittorrent:
-  #   image: lscr.io/linuxserver/qbittorrent:latest
-  #   container_name: qbittorrent
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Etc/UTC
-  #     - WEBUI_PORT=8080
-  #   volumes:
-  #     - qbittorrent_config:/config
-  #     - qbittorrent_downloads:/downloads
-  #   ports:
-  #     - 8080:8080
-  #     - 6881:6881
-  #     - 6881:6881/udp
-  #   restart: unless-stopped
-  #   networks:
-  #     - torrent
 networks:
   overseerr:
   media:
     driver: bridge
 
 volumes:
-  overseerr_config:
   jackett_config:
   jackett_downloads:
   sonarr_config:
