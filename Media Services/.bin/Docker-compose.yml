@@ -28,9 +28,8 @@ services:
       - AUTO_UPDATE=true  # Enable auto-update
     volumes:
       - sonarr_config:/config  # Configuration files
-      - sonarr_tv:/tv  # TV shows
-      - sonarr_downloads:/downloads  # Downloaded files
-    ports:
+      - /mnt/seagate/Shows:/tv:rw  # TV shows
+      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files    ports:
       - 8989:8989  # Web UI port
     restart: unless-stopped
     networks:
@@ -49,8 +48,8 @@ services:
       - AUTO_UPDATE=true  # Enable auto-update
     volumes:
       - radarr_config:/config  # Configuration files
-      - radarr_movies:/movies  # Movies
-      - radarr_downloads:/downloads  # Downloaded files
+      - /mnt/seagate/Movies:/movies:rw  # Movies
+      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files
     ports:
       - 7878:7878  # Web UI port
     restart: unless-stopped
@@ -144,7 +143,8 @@ services:
       - WEBUI_PORT=8080  # Web UI port
     volumes:
       - qbittorrent_config:/config  # Configuration files
-      - qbittorrent_downloads:/downloads  # Downloaded files
+      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files
+      - /mnt/seagate/Unfinished\ Torrents/:/downloads:rw  # Incomplete files
     restart: unless-stopped
 
   plex:
