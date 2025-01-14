@@ -83,45 +83,60 @@ services:
       - .env
     networks:
       - overseerr
-  
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Etc/UTC
-      - WEBUI_PORT=8080
-    volumes:
-      - qbittorrent_config:/config
-      - qbittorrent_downloads:/downloads
-    ports:
-      - 8080:8080
-      - 6881:6881
-      - 6881:6881/udp
-    restart: unless-stopped
-    networks:
-      - torrent
 
   vpn:
     image: ghcr.io/bubuntux/nordvpn
+    container_name: nordvpn
     cap_add:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
-      - TOKEN=  #Required
+      - TOKEN=f6f2bb45...       # Required
       - CONNECT=United_States
       - TECHNOLOGY=NordLynx
-      - NETWORK=192.168.1.0/24  # So it can be accessed within the local network
-    ports:
-      - 8080:8080
+      - WHITELIST=showrss.info,rarbg.to,yts.mx
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
-  torrent:
-    image: ghcr.io/linuxserver/qbittorrent
-    network_mode: service:vpn
-    depends_on:
-      - vpn
+  qbittorrent:
+     image: lscr.io/linuxserver/qbittorrent:latest
+     container_name: qbittorrent
+     depends_on:
+       - vpn
+     environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=Etc/UTC
+        - WEBUI_PORT=8080
+     volumes:
+       - qbittorrent_config:/config
+       - qbittorrent_downloads:/downloads
+     ports:
+       - 8080:8080
+       - 6881:6881
+       - 6881:6881/udp
+     restart: unless-stopped
+    
+# Make sure that you can access your server from the internet
+# for example configure dmz on your router
+# the torrent service would be available at https://mytorrent.duckdns.org
+  # qbittorrent:
+  #   image: lscr.io/linuxserver/qbittorrent:latest
+  #   container_name: qbittorrent
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Etc/UTC
+  #     - WEBUI_PORT=8080
+  #   volumes:
+  #     - qbittorrent_config:/config
+  #     - qbittorrent_downloads:/downloads
+  #   ports:
+  #     - 8080:8080
+  #     - 6881:6881
+  #     - 6881:6881/udp
+  #   restart: unless-stopped
+  #   networks:
+  #     - torrent
 networks:
   overseerr:
   torrent:
