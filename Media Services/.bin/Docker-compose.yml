@@ -130,7 +130,7 @@ services:
       - PGID=1000
       - TZ=America/New_York 
       - VERSION=docker 
-      - PLEX_CLAIM= $PLEX_CLAIM_TOKEN # Your claim token if needed
+      - PLEX_CLAIM= claim-6oWxySWMCsYKQb1Fx4Qq # Your claim token if needed
     volumes:
       - ../Test:/data
       - ../Test:/config
