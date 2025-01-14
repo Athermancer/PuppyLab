@@ -35,6 +35,8 @@ services:
     restart: unless-stopped
     networks:
       - media
+    depends_on:
+      - jackett # Depends on Jackett service
 
   radarr:
     # Radarr is a movie collection manager for Usenet and BitTorrent users.
@@ -54,6 +56,8 @@ services:
     restart: unless-stopped
     networks:
       - media
+    depends_on:
+      - jackett  # Depends on Jackett service
 
   overseerr:
     # Overseerr is a request management and media discovery tool.
@@ -70,6 +74,9 @@ services:
     restart: unless-stopped
     networks:
       - media
+    depends_on:
+      - sonarr  # Depends on Sonarr service
+      - radarr  # Depends on Radarr service
 
   wordpress:
     # WordPress is a free and open-source content management system.
@@ -78,8 +85,12 @@ services:
     restart: unless-stopped
     volumes:
       - ./wordpress:/app/data  # WordPress data
+    depends_on:
+      - overseerr  # Depends on Overseerr service
 
   tunnel:
+    depends_on:
+      - overseerr  # Depends on Overseerr service
     # Cloudflared Tunnel is used to securely connect to Cloudflare's network.
     container_name: cloudflared-tunnel
     image: cloudflare/cloudflared
@@ -118,6 +129,7 @@ services:
       - 8080:8080  # Web UI port
     networks:
       - vpn
+
   qbittorrent:
     # qBittorrent is a free and open-source BitTorrent client.
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -151,14 +163,14 @@ services:
       - ../Test:/config  # Configuration files
     ports:
       - 32400:32400  # Plex port
-      - 3005:3005  # Plex port
-      - 8324:8324  # Plex port
-      - 32469:32469  # Plex port
-      - 1900:1900  # Plex port
-      - 32410:32410  # Plex port
-      - 32412:32412  # Plex port
-      - 32413:32413  # Plex port
-      - 32414:32414  # Plex port
+      # - 3005:3005  # Plex port
+      # - 8324:8324  # Plex port
+      # - 32469:32469  # Plex port
+      # - 1900:1900  # Plex port
+      # - 32410:32410  # Plex port
+      # - 32412:32412  # Plex port
+      # - 32413:32413  # Plex port
+      # - 32414:32414  # Plex port
     networks:
       - media  # Plex network
 
