@@ -62,8 +62,6 @@ services:
        - PUID=1000
        - PGID=1000
        - TZ=Etc/UTC
-    volumes:
-       - overseerr_config: /config
     ports:
        - 5055:5055
     restart: unless-stopped
@@ -156,6 +154,5 @@ volumes:
   radarr_config:
   radarr_movies:
   radarr_downloads:
-  overseerr_config:
   qbittorrent_config:
   qbittorrent_downloads:
