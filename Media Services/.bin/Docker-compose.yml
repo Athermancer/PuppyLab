@@ -78,7 +78,7 @@ services:
     container_name: cloudflared-tunnel
     image: cloudflare/cloudflared
     restart: unless-stopped
-    command: tunnel run --token "$TUNNEL_TOKEN"
+    command: tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"
     env_file:
       - .env
     networks:
@@ -90,8 +90,10 @@ services:
     cap_add:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
+    env_file:
+       - .env
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
-      - TOKEN=f6f2bb45...       # Required
+      - TOKEN= "$NORDVPN_TOKEN"       # Required
       - CONNECT=United_States
       - TECHNOLOGY=NordLynx
       - WHITELIST=showrss.info,rarbg.to,yts.mx
@@ -102,7 +104,8 @@ services:
      container_name: qbittorrent
      depends_on:
        - vpn
-     environment:
+     
+     envenvironment:
         - PUID=1000
         - PGID=1000
         - TZ=Etc/UTC
@@ -139,7 +142,6 @@ services:
   #     - torrent
 networks:
   overseerr:
-  torrent:
   media:
     driver: bridge
 
