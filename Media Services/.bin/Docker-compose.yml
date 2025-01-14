@@ -98,7 +98,7 @@ services:
     env_file: 
       - .env                     # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
-      - TOKEN="$NORDVPN_TOKEN"     # Required
+      - TOKEN= "$NORDVPN_TOKEN"     # Required
       - CONNECT=United_States
       - TECHNOLOGY=NordLynx
       - NETWORK=192.168.0.0/24  # So it can be accessed within the local network
