@@ -101,12 +101,29 @@ services:
       - .env  # Environment variables
     environment:
       - TOKEN="$NORDVPN_TOKEN"  # NordVPN token
-      - CONNECT=United_States  # VPN server location
+      # COUNTRY: Specifies the VPN server country.
+      # Possible options for COUNTRY:
+      # - us: United States
+      # - ca: Canada
+      # - uk: United Kingdom
+      # - de: Germany
+      # - fr: France
+      # - jp: Japan
+      # - au: Australia
+      # - nl: Netherlands
+      # - se: Sweden
+      # - no: Norway
+      # - ch: Switzerland
+      # - sg: Singapore
+      - COUNTRY=us  # VPN server country
+      - GROUP=p2p  # VPN server group
       - TECHNOLOGY=NordLynx  # VPN technology
       - WHITELIST=showrss.info,rarbg.to,yts.mx  # Whitelisted domains
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1  # Disable IPv6
-
+    networks:
+      - torrents  # qBittorrent network
+  
   qbittorrent:
     # qBittorrent is a free and open-source BitTorrent client.
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -126,7 +143,8 @@ services:
       - 6881:6881  # BitTorrent port
       - 6881:6881/udp  # BitTorrent UDP port
     restart: unless-stopped
-
+    networks:
+      - torrents  # qBittorrent network
   plex:
     # Plex is a media server that organizes video, music, and photos.
     image: linuxserver/plex
