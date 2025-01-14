@@ -100,7 +100,7 @@ services:
     env_file:
       - .env  # Environment variables
     environment:
-      - TOKEN= "$NORDVPN_TOKEN"  # NordVPN token
+      - TOKEN="$NORDVPN_TOKEN"  # NordVPN token
       - CONNECT=United_States  # VPN server location
       - TECHNOLOGY=NordLynx  # VPN technology
       - WHITELIST=showrss.info,rarbg.to,yts.mx  # Whitelisted domains
