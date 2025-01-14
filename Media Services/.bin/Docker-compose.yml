@@ -148,6 +148,7 @@ networks:
     driver: bridge
 
 volumes:
+  overseerr_config:
   jackett_config:
   jackett_downloads:
   sonarr_config:
