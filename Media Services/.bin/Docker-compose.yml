@@ -122,8 +122,7 @@ services:
      restart: unless-stopped
   plex:
     image: linuxserver/plex
-    container_name: plex
-    network_mode: host 
+    container_name: plex 
     environment:
       - PUID=1000
       - PGID=1000
