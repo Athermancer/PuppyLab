@@ -3,7 +3,6 @@ services:
     image: lscr.io/linuxserver/jackett:latest
     container_name: jackett
     environment:
-      environment:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
