@@ -34,6 +34,24 @@ services:
     networks:
       - media
 
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - AUTO_UPDATE=true
+    volumes:
+      - radarr_config:/config
+      - radarr_movies:/movies
+      - radarr_downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+    networks:
+      - media
+
 networks:
   media:
     driver: bridge
@@ -44,3 +62,6 @@ volumes:
   sonarr_config:
   sonarr_tv:
   sonarr_downloads:
+  radarr_config:
+  radarr_movies:
+  radarr_downloads:
