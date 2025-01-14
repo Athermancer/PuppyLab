@@ -1,4 +1,7 @@
 services:
+  
+
+  
   jackett:
     image: lscr.io/linuxserver/jackett:latest
     container_name: jackett
@@ -60,7 +63,7 @@ services:
        - PGID=1000
        - TZ=Etc/UTC
     volumes:
-       - overseerr_config:/config
+       - overseerr_config: /config
     ports:
        - 5055:5055
     restart: unless-stopped
