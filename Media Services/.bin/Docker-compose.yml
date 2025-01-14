@@ -7,8 +7,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - AUTO_UPDATE=true 
-      - RUN_OPTS= 
+      - AUTO_UPDATE=true  
     volumes:
       - jackett_config:/config
       - jackett_downloads:/downloads
