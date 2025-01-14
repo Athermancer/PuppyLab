@@ -86,7 +86,7 @@ services:
     restart: unless-stopped
     command: tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"
     env_file:
-      - .env  # Environment variables
+      - .envtunnel  # Environment variables
     networks:
       - media
 
@@ -96,7 +96,7 @@ services:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
     env_file: 
-      - .env                     # Required
+      - .envvpn                    # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
       # - USER=                  # Your NordVPN username
       # - PASS=                  # Your NordVPN password
@@ -107,7 +107,6 @@ services:
       # - FIREWALL=              # Enable firewall (true/false)
       # - TUNNEL=                # Enable tunnel (true/false)
       # - DEBUG=                 # Enable debug mode (true/false)
-      - TOKEN= "$NORDVPN_TOKEN"     # Required
       - CONNECT=United_States
       - TECHNOLOGY=NordLynx
       - NETWORK=192.168.0.0/24   # Your local network
