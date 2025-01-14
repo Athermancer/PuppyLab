@@ -160,7 +160,7 @@ services:
       - TZ=America/New_York  # Timezone
       - VERSION=docker  # Container version
     volumes:
-      - ../Test:/data  # Media files
+      - /mnt/seagate:/data  # Media files
       - ../Test:/config  # Configuration files
     ports:
       - 32400:32400  # Plex port
