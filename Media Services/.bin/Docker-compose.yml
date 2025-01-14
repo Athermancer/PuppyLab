@@ -65,7 +65,7 @@ services:
   #     - 5055:5055
   #   restart: unless-stopped
   #   networks:
-  #     - media
+  #     - overseerr
 
   wordpress:
     container_name: wordpress
@@ -82,9 +82,7 @@ services:
     env_file:
       - .env
     networks:
-      default:
-       external:
-      name: wordpress
+      - overseerr
   
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
@@ -106,6 +104,8 @@ services:
       - torrent
 
 networks:
+  overseerr:
+    driver: bridge
   torrent:
     driver: bridge
   media:
