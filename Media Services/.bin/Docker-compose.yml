@@ -29,7 +29,8 @@ services:
     volumes:
       - sonarr_config:/config  # Configuration files
       - /mnt/seagate/Shows:/tv:rw  # TV shows
-      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files    ports:
+      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files   
+    ports:
       - 8989:8989  # Web UI port
     restart: unless-stopped
     networks:
