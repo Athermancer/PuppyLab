@@ -107,7 +107,6 @@ services:
       # - FIREWALL=              # Enable firewall (true/false)
       # - TUNNEL=                # Enable tunnel (true/false)
       # - DEBUG=                 # Enable debug mode (true/false)
-      - TOKEN= "$token"                   # Your NordVPN token
       - CONNECT=United_States
       - TECHNOLOGY=NordLynx
       - NETWORK=192.168.0.0/24   # Your local network
