@@ -161,7 +161,7 @@ services:
       - VERSION=docker  # Container version
     volumes:
       - /mnt/seagate:/data  # Media files
-      - ../Test:/config  # Configuration files
+      - ./Test:/config  # Configuration files
     ports:
       - 32400:32400  # Plex port
       - 1900:1900/udp  # Plex port
