@@ -9,3 +9,9 @@ services:
       - ./data:/www/assets
     ports:
       - 9001:9001
+    networks: 
+      - dashboard
+
+networks: 
+  dashboard:
+    
