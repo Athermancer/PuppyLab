@@ -47,6 +47,7 @@ services:
       - monitoring
     depends_on:
       - prometheus
+  
   tunnel:
     depends_on:
       - grafana  # Depends on grafana service
@@ -54,9 +55,9 @@ services:
     container_name: grafana-tunnel
     image: cloudflare/cloudflared
     restart: unless-stopped
-    command: tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"
+    command: tunnel run --token "$CLOUDFLARE_TOKEN"
     env_file:
-      - .envtunnel  # Environment variables
+      - .envtunnel:ro  # Environment variables
     networks:
       - monitoring
 volumes:
