@@ -8,7 +8,7 @@ services:
     volumes:
       - ./data:/www/assets
     ports:
-      - 9001:9001
+      - 9001:8080
     networks: 
       - dashboard
 
