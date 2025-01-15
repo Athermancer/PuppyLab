@@ -4,7 +4,6 @@ services:
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
-    network_mode: "host"
     ports:
       - "8090:8080"
     volumes: 
@@ -16,3 +15,9 @@ services:
     privileged: true
     devices: 
       - "/dev/kmsg"
+    networks: 
+        - monitoring
+  
+networks:
+  monitoring:
+       
