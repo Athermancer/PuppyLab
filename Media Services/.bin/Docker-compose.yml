@@ -106,8 +106,8 @@ services:
     cap_add:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
-    env_file: 
-      - .envvpn                    # Required
+    # env_file: 
+    #   - .envvpn                    # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
       # - USER=                  # Your NordVPN username
       # - PASS=                  # Your NordVPN password
@@ -147,6 +147,7 @@ services:
       - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files
       - /mnt/seagate/Unfinished\ Torrents/:/downloads:rw  # Incomplete files
     restart: unless-stopped
+    
 
   plex:
     # Plex is a media server that organizes video, music, and photos.
