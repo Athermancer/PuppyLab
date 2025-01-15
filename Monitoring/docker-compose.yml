@@ -57,7 +57,7 @@ services:
     restart: unless-stopped
     command: tunnel run --token "$CLOUDFLARE_TOKEN"
     env_file:
-      - .envtunnel  # Environment variables
+      - .env  # Environment variables
     networks:
       - monitoring
 volumes:
