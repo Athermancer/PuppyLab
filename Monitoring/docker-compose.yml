@@ -49,7 +49,7 @@ services:
       - prometheus
   tunnel:
     depends_on:
-      - Grafana  # Depends on Grafana service
+      - grafana  # Depends on grafana service
     # Cloudflared Tunnel is used to securely connect to Cloudflare's network.
     container_name: cloudflared-tunnel
     image: cloudflare/cloudflared
