@@ -176,13 +176,26 @@ networks:
   media:
 
 volumes:
+  # Configuration data for the Jackett container
   jackett_config:
+  # Downloaded files managed by the Jackett container
   jackett_downloads:
+  
+  # Configuration data for the Sonarr container
   sonarr_config:
+  # TV shows managed by the Sonarr container
   sonarr_tv:
+  # Downloaded files managed by the Sonarr container
   sonarr_downloads:
+  
+  # Configuration data for the Radarr container
   radarr_config:
+  # Movies managed by the Radarr container
   radarr_movies:
+  # Downloaded files managed by the Radarr container
   radarr_downloads:
+  
+  # Configuration data for the qBittorrent container
   qbittorrent_config:
+  # Downloaded files managed by the qBittorrent container
   qbittorrent_downloads:
