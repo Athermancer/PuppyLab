@@ -106,8 +106,8 @@ services:
     cap_add:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
-    # env_file: 
-    #   - .envvpn                    # Required
+    env_file: 
+       - .envvpn                    # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
       # - USER=                  # Your NordVPN username
       # - PASS=                  # Your NordVPN password
