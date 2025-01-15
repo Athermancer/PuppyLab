@@ -6,7 +6,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:latest
     network_mode: "host"
     ports:
-      - "8080:8080"
+      - "8090:8080"
     volumes: 
       - "/:/rootfs"
       - "/var/run:/var/run"
