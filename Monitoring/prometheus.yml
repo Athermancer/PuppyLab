@@ -2,11 +2,10 @@ global:
   scrape_interval: 15s #Scrape interval to every 15 seconds.
   evaluation_interval: 15s #Evaluate rules every 15 seconds.
 
-storage:
-  tsdb:
-    retention:
-      time: 1d
-      size: 5GiB
+# storage:
+#   tsdb:
+#     retention: '1d'
+#     retention_size: 5GB
 scrape_configs:
   - job_name: "prometheus"
     # metrics_path defaults to '/metrics'
