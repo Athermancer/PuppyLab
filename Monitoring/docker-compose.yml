@@ -23,6 +23,7 @@ services:
     ports:
       - "9090:9090"
     volumes: 
+      - prometheus-data:/prometheus
       - "./prometheus.yml:/etc/prometheus/prometheus.yml"
     networks:
       - monitoring
@@ -74,6 +75,7 @@ services:
       - monitoring
 volumes:
   grafana-data:
+  prometheus-data:
 
 networks:
   monitoring:
