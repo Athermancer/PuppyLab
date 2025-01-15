@@ -1,0 +1,94 @@
+## Instructions for Setting Up Drives and Mounting in Debian
+
+### Checking UUID of Drive
+
+1. Open a terminal.
+2. Run the following command to list all drives and their UUIDs:
+   ```sh
+   sudo blkid
+   ```
+3. Note the UUID of the drive you want to mount.
+
+### Mounting Drive in `fstab`
+
+1. Open the `fstab` file in a text editor:
+   ```sh
+   sudo nano /etc/fstab
+   ```
+2. Add the following line to the file, replacing `<UUID>` with the UUID of your drive and `<mount_point>` with the desired mount point:
+   ```plaintext
+   UUID=<UUID>  <mount_point>  ext4  defaults  0  2
+   ```
+3. Save and close the file.
+4. Create the mount point directory if it doesn't exist:
+   ```sh
+   sudo mkdir -p <mount_point>
+   ```
+5. Mount all filesystems:
+   ```sh
+   sudo mount -a
+   ```
+
+### Pre-making Referenced Files and Directories
+
+Ensure all referenced files and directories in the Docker-compose file are created:
+
+1. Create directories for Sonarr:
+   ```sh
+   sudo mkdir -p /mnt/seagate/Shows
+   sudo mkdir -p /mnt/seagate/Completed\ Torrents
+   ```
+
+2. Create directories for Radarr:
+   ```sh
+   sudo mkdir -p /mnt/seagate/Movies
+   sudo mkdir -p /mnt/seagate/Completed\ Torrents
+   ```
+
+3. Create directories for qBittorrent:
+   ```sh
+   sudo mkdir -p /mnt/seagate/Completed\ Torrents
+   sudo mkdir -p /mnt/seagate/Unfinished\ Torrents
+   ```
+
+4. Create directories for Plex:
+   ```sh
+   sudo mkdir -p /mnt/seagate
+   sudo mkdir -p ./Test
+   ```
+
+5. Create directories for WordPress:
+   ```sh
+   sudo mkdir -p ./wordpress
+   ```
+
+6. Create directories for Overseerr:
+   ```sh
+   sudo mkdir -p ../.cnf
+   ```
+
+Ensure the directories have the correct permissions:
+```sh
+sudo chown -R 1000:1000 /mnt/seagate
+sudo chown -R 1000:1000 ./Test
+sudo chown -R 1000:1000 ./wordpress
+sudo chown -R 1000:1000 ../.cnf
+```
+
+### Downloading Required Software
+
+Before deploying the Docker stack, ensure you have the following software installed:
+
+1. **Docker**: Follow the instructions on the [Docker website](https://docs.docker.com/get-docker/) to install Docker on your system.
+2. **Docker Compose**: Follow the instructions on the [Docker Compose website](https://docs.docker.com/compose/install/) to install Docker Compose.
+
+Verify the installations by running:
+```sh
+docker --version
+docker-compose --version
+```
+
+Once the software is installed, you can deploy the Docker stack using:
+```sh
+docker-compose up -d
+```
