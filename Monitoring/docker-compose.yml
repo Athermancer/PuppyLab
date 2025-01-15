@@ -39,9 +39,9 @@ services:
       - DS_PROMETHEUS=prometheus
     volumes: 
       - grafana-data:/var/lib/grafana
-      - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:rw
-      - ./dashboard.json:/var/lib/grafana/dashboards/dashboard.json:rw
-      - ./default.yaml:/etc/grafana/provisioning/dashboards/default.yaml:rw
+      - ../datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:rw
+      - ../dashboard.json:/var/lib/grafana/dashboards/dashboard.json:rw
+      - ../default.yaml:/etc/grafana/provisioning/dashboards/default.yaml:rw
     privileged: true
     networks:
       - monitoring
