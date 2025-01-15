@@ -51,7 +51,7 @@ services:
     depends_on:
       - grafana  # Depends on grafana service
     # Cloudflared Tunnel is used to securely connect to Cloudflare's network.
-    container_name: cloudflared-tunnel
+    container_name: grafana-tunnel
     image: cloudflare/cloudflared
     restart: unless-stopped
     command: tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"
