@@ -1,0 +1,7 @@
+## Homer Service
+
+Homer is a simple and lightweight homepage for your server, providing a way to organize and access your most used services and links.
+
+### Data Directory
+
+The `data` directory is used to store configuration files and assets for Homer. This includes the `config.yml` file, which defines the layout and content of your homepage, as well as any custom icons or images you want to use.

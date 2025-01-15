@@ -77,14 +77,16 @@ services:
     depends_on:
       - sonarr  # Depends on Sonarr service
       - radarr  # Depends on Radarr service
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'  # Limit CPU usage
-          memory: 512M  # Limit memory usage
-        reservations:
-          cpus: '0.1'   # Reserve CPU
-          memory: 256M  # Reserve memory
+
+  wordpress:
+    # WordPress is a free and open-source content management system.
+    container_name: wordpress
+    image: wordpress:latest
+    restart: unless-stopped
+    volumes:
+      - ./wordpress:/app/data  # WordPress data
+    depends_on:
+      - overseerr  # Depends on Overseerr service
 
   tunnel:
     depends_on:
@@ -105,7 +107,7 @@ services:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
     env_file: 
-       - .envvpn                    # Required
+      - .envvpn                    # Required
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
       # - USER=                  # Your NordVPN username
       # - PASS=                  # Your NordVPN password
@@ -145,29 +147,31 @@ services:
       - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files
       - /mnt/seagate/Unfinished\ Torrents/:/downloads:rw  # Incomplete files
     restart: unless-stopped
-    
 
   plex:
     # Plex is a media server that organizes video, music, and photos.
     image: linuxserver/plex
     container_name: plex
     env_file:
-      - .envplex  # Environment variables
+      - .env  # Environment variables
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
       - TZ=America/New_York  # Timezone
       - VERSION=docker  # Container version
     volumes:
-      - /mnt/seagate:/data  # Media files
-      - ./Test:/config  # Configuration files
+      - ../Test:/data  # Media files
+      - ../Test:/config  # Configuration files
     ports:
       - 32400:32400  # Plex port
-      - 1900:1900/udp  # Plex port
-      - 5353:5353/udp  # Plex port
-      - 8324:8324/tcp  # Plex port
-      - 32410:32410/udp  # Plex port
-      - 32469:32469/tcp  # Plex port
+      # - 3005:3005  # Plex port
+      # - 8324:8324  # Plex port
+      # - 32469:32469  # Plex port
+      # - 1900:1900  # Plex port
+      # - 32410:32410  # Plex port
+      # - 32412:32412  # Plex port
+      # - 32413:32413  # Plex port
+      # - 32414:32414  # Plex port
     networks:
       - media  # Plex network
 
@@ -176,26 +180,13 @@ networks:
   media:
 
 volumes:
-  # Configuration data for the Jackett container
   jackett_config:
-  # Downloaded files managed by the Jackett container
   jackett_downloads:
-  
-  # Configuration data for the Sonarr container
   sonarr_config:
-  # TV shows managed by the Sonarr container
   sonarr_tv:
-  # Downloaded files managed by the Sonarr container
   sonarr_downloads:
-  
-  # Configuration data for the Radarr container
   radarr_config:
-  # Movies managed by the Radarr container
   radarr_movies:
-  # Downloaded files managed by the Radarr container
   radarr_downloads:
-  
-  # Configuration data for the qBittorrent container
   qbittorrent_config:
-  # Downloaded files managed by the qBittorrent container
   qbittorrent_downloads:

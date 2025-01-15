@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  homer:
+    image: b4bz/homer
+    container_name: homer
+    restart: unless-stopped
+    volumes:
+      - ./data:/www/assets
+    ports:
+      - 9001:9001

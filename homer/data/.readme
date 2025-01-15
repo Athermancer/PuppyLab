@@ -1,0 +1,8 @@
+## Data Directory
+
+This directory is used to store configuration files and assets for the Homer service. 
+
+### Contents
+
+- `config.yml`: Defines the layout and content of your Homer homepage.
+- Custom icons or images: Any additional assets you want to use on your homepage.
