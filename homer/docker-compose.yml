@@ -6,7 +6,7 @@ services:
     container_name: homer
     restart: unless-stopped
     volumes:
-      - ./data:/www/assets
+      - ./data:/www/assets:rw
     ports:
       - 9001:8080
     networks: 
