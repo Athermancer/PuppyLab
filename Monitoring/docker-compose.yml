@@ -38,10 +38,10 @@ services:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - DS_PROMETHEUS=prometheus
     volumes: 
-      - "grafana-data:/var/lib/grafana"
-      - "./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml"
-      - "./dashboard.json:/var/lib/grafana/dashboards/dashboard.json"
-      - "./default.yaml:/etc/grafana/provisioning/dashboards/default.yaml"
+      - grafana-data:/var/lib/grafana
+      - ./datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./dashboard.json:/var/lib/grafana/dashboards/dashboard.json
+      - ./default.yaml:/etc/grafana/provisioning/dashboards/default.yaml
     privileged: true
     networks:
       - monitoring
