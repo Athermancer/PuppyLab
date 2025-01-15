@@ -3,8 +3,8 @@ services:
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:latest
-    ports:
-      - "8090:8080"
+    # ports:
+    #   - "8090:8080"
     volumes: 
       - /:/rootfs:ro
       - /var/run:/var/run:rw
