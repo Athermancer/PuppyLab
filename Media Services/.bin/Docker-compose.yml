@@ -77,16 +77,14 @@ services:
     depends_on:
       - sonarr  # Depends on Sonarr service
       - radarr  # Depends on Radarr service
-
-  wordpress:
-    # WordPress is a free and open-source content management system.
-    container_name: wordpress
-    image: wordpress:latest
-    restart: unless-stopped
-    volumes:
-      - ./wordpress:/app/data  # WordPress data
-    depends_on:
-      - overseerr  # Depends on Overseerr service
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'  # Limit CPU usage
+          memory: 512M  # Limit memory usage
+        reservations:
+          cpus: '0.1'   # Reserve CPU
+          memory: 256M  # Reserve memory
 
   tunnel:
     depends_on:
