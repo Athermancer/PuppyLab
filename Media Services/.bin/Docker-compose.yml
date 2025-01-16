@@ -23,7 +23,6 @@ services:
           cpus: '0.5'
         reservations:
           memory: 256M
-          cpus: '0.25'
 
   sonarr:
     # Sonarr is a PVR for Usenet and BitTorrent users.
@@ -52,7 +51,6 @@ services:
           cpus: '1.0'
         reservations:
           memory: 512M
-          cpus: '0.5'
 
   radarr:
     # Radarr is a movie collection manager for Usenet and BitTorrent users.
@@ -81,7 +79,6 @@ services:
           cpus: '1.0'
         reservations:
           memory: 512M
-          cpus: '0.5'
 
   overseerr:
     # Overseerr is a request management and media discovery tool.
@@ -108,25 +105,6 @@ services:
           cpus: '0.5'
         reservations:
           memory: 256M
-          cpus: '0.25'
-
-  wordpress:
-    # WordPress is a free and open-source content management system.
-    container_name: wordpress
-    image: wordpress:latest
-    restart: unless-stopped
-    volumes:
-      - ./wordpress:/app/data  # WordPress data
-    depends_on:
-      - overseerr  # Depends on Overseerr service
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-        reservations:
-          memory: 256M
-          cpus: '0.25'
 
   tunnel:
     depends_on:
@@ -147,7 +125,6 @@ services:
           cpus: '0.25'
         reservations:
           memory: 128M
-          cpus: '0.1'
 
   vpn:
     image: ghcr.io/bubuntux/nordvpn
@@ -184,7 +161,6 @@ services:
           cpus: '0.5'
         reservations:
           memory: 256M
-          cpus: '0.25'
 
   qbittorrent:
     # qBittorrent is a free and open-source BitTorrent client.
@@ -210,7 +186,6 @@ services:
           cpus: '1.0'
         reservations:
           memory: 512M
-          cpus: '0.5'
 
   plex:
     # Plex is a media server that organizes video, music, and photos.
@@ -241,11 +216,10 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 4G
           cpus: '2.0'
         reservations:
-          memory: 1G
-          cpus: '1.0'
+          memory: 2G
 
 networks:
   vpn:
