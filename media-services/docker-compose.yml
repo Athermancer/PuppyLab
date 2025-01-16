@@ -1,84 +1,57 @@
+version: '3.8'
+
 services:
   jackett:
-    # Jackett is a tool that automates the process of searching for torrents.
     image: lscr.io/linuxserver/jackett:latest
     container_name: jackett
     environment:
-      - PUID=1000  # User ID
-      - PGID=1000  # Group ID
-      - TZ=Etc/UTC  # Timezone
-      - AUTO_UPDATE=true  # Enable auto-update
+      - PUID=1000 # User ID
+      - PGID=1000 # Group ID
+      - TZ=America/New_York # Timezone
+      # Optional environment variables:
+      # - AUTO_UPDATE=true
     volumes:
-      - jackett_config:/config  # Configuration files
-      - jackett_downloads:/downloads  # Downloaded files
+      - /home/miles/docker/jackett/config:/config
+      - /home/miles/docker/shared/downloads:/downloads
     ports:
-      - 9117:9117  # Web UI port
+      - 9117:9117
     restart: unless-stopped
-    networks:
-      - media
-    # deploy:
-    #   resources:
-    #     limits:
-    #       memory: 512M
-    #       cpus: '0.5'
-    #     reservations:
-    #       memory: 256M
 
   sonarr:
-    # Sonarr is a PVR for Usenet and BitTorrent users.
     image: lscr.io/linuxserver/sonarr:latest
     container_name: sonarr
-    environment:
-      - PUID=1000  # User ID
-      - PGID=1000  # Group ID
-      - TZ=Etc/UTC  # Timezone
-      - AUTO_UPDATE=true  # Enable auto-update
-    volumes:
-      - sonarr_config:/config  # Configuration files
-      - /mnt/seagate/Shows:/tv:rw  # TV shows
-      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files   
-    ports:
-      - 8989:8989  # Web UI port
-    restart: unless-stopped
-    networks:
-      - media
     depends_on:
-      - jackett # Depends on Jackett service
-    # deploy:
-    #   resources:
-    #     limits:
-    #       memory: 1G
-    #       cpus: '1.0'
-    #     reservations:
-    #       memory: 512M
+      - jackett
+    environment:
+      - PUID=1000 # User ID
+      - PGID=1000 # Group ID
+      - TZ=America/New_York # Timezone
+      - UMASK_SET=022 # Optional umask setting
+    volumes:
+      - /home/miles/docker/sonarr/config:/config
+      - /home/miles/docker/shared/downloads:/downloads
+      - /home/miles/docker/shared/media:/media
+    ports:
+      - 8989:8989
+    restart: unless-stopped
 
   radarr:
-    # Radarr is a movie collection manager for Usenet and BitTorrent users.
     image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
-    environment:
-      - PUID=1000  # User ID
-      - PGID=1000  # Group ID
-      - TZ=Etc/UTC  # Timezone
-      - AUTO_UPDATE=true  # Enable auto-update
-    volumes:
-      - radarr_config:/config  # Configuration files
-      - /mnt/seagate/Movies:/movies:rw  # Movies
-      - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files
-    ports:
-      - 7878:7878  # Web UI port
-    restart: unless-stopped
-    networks:
-      - media
     depends_on:
-      - jackett  # Depends on Jackett service
-    # deploy:
-    #   resources:
-    #     limits:
-    #       memory: 1G
-    #       cpus: '1.0'
-    #     reservations:
-    #       memory: 512M
+      - jackett
+    environment:
+      - PUID=1000 # User ID
+      - PGID=1000 # Group ID
+      - TZ=America/New_York # Timezone
+      - UMASK_SET=022 # Optional umask setting
+    volumes:
+      - /home/miles/docker/radarr/config:/config
+      - /home/miles/docker/shared/downloads:/downloads
+      - /home/miles/docker/shared/media:/media
+    ports:
+      - 7878:7878
+    restart: unless-stopped
 
   overseerr:
     # Overseerr is a request management and media discovery tool.
