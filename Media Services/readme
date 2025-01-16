@@ -92,3 +92,75 @@ Once the software is installed, you can deploy the Docker stack using:
 ```sh
 docker-compose up -d
 ```
+
+### Service Documentation
+
+#### Jackett
+
+Jackett is a tool that automates the process of searching for torrents. It provides a unified API for various torrent sites.
+
+- **Web UI**: Accessible at port `9117`.
+- **Configuration**: Stored in `jackett_config` volume.
+- **Downloads**: Stored in `jackett_downloads` volume.
+
+#### Sonarr
+
+Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new episodes of your favorite shows and will grab, sort, and rename them.
+
+- **Web UI**: Accessible at port `8989`.
+- **Configuration**: Stored in `sonarr_config` volume.
+- **TV Shows**: Stored in `/mnt/seagate/Shows`.
+- **Downloads**: Stored in `/mnt/seagate/Completed Torrents`.
+
+#### Radarr
+
+Radarr is a movie collection manager for Usenet and BitTorrent users. It can monitor multiple RSS feeds for new movies and will grab, sort, and rename them.
+
+- **Web UI**: Accessible at port `7878`.
+- **Configuration**: Stored in `radarr_config` volume.
+- **Movies**: Stored in `/mnt/seagate/Movies`.
+- **Downloads**: Stored in `/mnt/seagate/Completed Torrents`.
+
+#### Overseerr
+
+Overseerr is a request management and media discovery tool. It integrates with Sonarr and Radarr to manage requests for new content.
+
+- **Web UI**: Accessible at port `5055`.
+- **Configuration**: Stored in `../.cnf`.
+
+#### WordPress
+
+WordPress is a free and open-source content management system.
+
+- **Data**: Stored in `./wordpress`.
+
+#### Cloudflared Tunnel
+
+Cloudflared Tunnel is used to securely connect to Cloudflare's network.
+
+- **Command**: `tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"`.
+- **Environment Variables**: Stored in `.envtunnel`.
+
+#### VPN
+
+VPN service using NordVPN.
+
+- **Ports**: `6881` for BitTorrent, `8080` for Web UI.
+- **Environment Variables**: Stored in `.envvpn`.
+
+#### qBittorrent
+
+qBittorrent is a free and open-source BitTorrent client.
+
+- **Web UI**: Accessible at port `8080`.
+- **Configuration**: Stored in `qbittorrent_config` volume.
+- **Downloads**: Stored in `/mnt/seagate/Completed Torrents`.
+- **Incomplete Downloads**: Stored in `/mnt/seagate/Unfinished Torrents`.
+
+#### Plex
+
+Plex is a media server that organizes video, music, and photos.
+
+- **Ports**: `32400` for Plex, other ports are commented out.
+- **Configuration**: Stored in `../Test`.
+- **Media Files**: Stored in `../Test`.

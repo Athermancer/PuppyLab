@@ -1,0 +1,15 @@
+/**
+ * AdGuardService is responsible for managing the AdGuard application.
+ * It provides methods to start, stop, and check the status of the AdGuard service.
+ * 
+ * Methods:
+ * - start(): Starts the AdGuard service.
+ * - stop(): Stops the AdGuard service.
+ * - getStatus(): Returns the current status of the AdGuard service.
+ * 
+ * Example usage:
+ * const adGuardService = new AdGuardService();
+ * adGuardService.start();
+ * console.log(adGuardService.getStatus());
+ * adGuardService.stop();
+ */
