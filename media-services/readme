@@ -1,4 +1,60 @@
-# Create necessary directories on the host machine
+# Installation Directions
+
+## Install Docker
+
+1. Update your package list:
+   ```sh
+   sudo apt-get update
+   ```
+
+2. Install Docker's package dependencies:
+   ```sh
+   sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+   ```
+
+3. Add Docker's official GPG key:
+   ```sh
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   ```
+
+4. Add Docker's official APT repository:
+   ```sh
+   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+   ```
+
+5. Update your package list again:
+   ```sh
+   sudo apt-get update
+   ```
+
+6. Install Docker:
+   ```sh
+   sudo apt-get install docker-ce
+   ```
+
+7. Verify Docker installation:
+   ```sh
+   docker --version
+   ```
+
+## Install Docker Compose
+
+1. Download the latest version of Docker Compose:
+   ```sh
+   sudo curl -L "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K.*\d')" /usr/local/bin/docker-compose
+   ```
+
+2. Apply executable permissions to the binary:
+   ```sh
+   sudo chmod +x /usr/local/bin/docker-compose
+   ```
+
+3. Verify Docker Compose installation:
+   ```sh
+   docker-compose --version
+   ```
+
+# Create Necessary Directories on the Host Machine
 
 mkdir -p /home/miles/docker/jackett/config
 mkdir -p /home/miles/docker/jackett/downloads

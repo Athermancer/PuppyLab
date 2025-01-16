@@ -29,52 +29,6 @@
    sudo mount -a
    ```
 
-### Pre-making Referenced Files and Directories
-
-Ensure all referenced files and directories in the Docker-compose file are created:
-
-1. Create directories for Sonarr:
-   ```sh
-   sudo mkdir -p /mnt/seagate/Shows
-   sudo mkdir -p /mnt/seagate/Completed\ Torrents
-   ```
-
-2. Create directories for Radarr:
-   ```sh
-   sudo mkdir -p /mnt/seagate/Movies
-   sudo mkdir -p /mnt/seagate/Completed\ Torrents
-   ```
-
-3. Create directories for qBittorrent:
-   ```sh
-   sudo mkdir -p /mnt/seagate/Completed\ Torrents
-   sudo mkdir -p /mnt/seagate/Unfinished\ Torrents
-   ```
-
-4. Create directories for Plex:
-   ```sh
-   sudo mkdir -p /mnt/seagate
-   sudo mkdir -p ./Test
-   ```
-
-5. Create directories for WordPress:
-   ```sh
-   sudo mkdir -p ./wordpress
-   ```
-
-6. Create directories for Overseerr:
-   ```sh
-   sudo mkdir -p ../.cnf
-   ```
-
-Ensure the directories have the correct permissions:
-```sh
-sudo chown -R 1000:1000 /mnt/seagate
-sudo chown -R 1000:1000 ./Test
-sudo chown -R 1000:1000 ./wordpress
-sudo chown -R 1000:1000 ../.cnf
-```
-
 ### Downloading Required Software
 
 Before deploying the Docker stack, ensure you have the following software installed:
