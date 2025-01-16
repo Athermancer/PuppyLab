@@ -10,8 +10,11 @@ mkdir -p /home/miles/docker/radarr/downloads
 mkdir -p /home/miles/docker/radarr/media
 mkdir -p /home/miles/docker/overseerr/config
 mkdir -p /home/miles/docker/vpn/.envvpn
-mkdir -p /home/miles/docker/qbittorrent/config     s
+mkdir -p /home/miles/docker/qbittorrent/config
 mkdir -p /home/miles/docker/qbittorrent/downloads  # these need to switched back to the external drive
 mkdir -p /home/miles/docker/qbittorrent/incomplete # these need to switched back to the external drive
 mkdir -p /home/miles/docker/plex/data
 mkdir -p /home/miles/docker/plex/config
+
+# Copy-paste command to create all directories
+mkdir -p /home/miles/docker/jackett/config /home/miles/docker/jackett/downloads /home/miles/docker/sonarr/config /home/miles/docker/sonarr/downloads /home/miles/docker/sonarr/media /home/miles/docker/radarr/config /home/miles/docker/radarr/downloads /home/miles/docker/radarr/media /home/miles/docker/overseerr/config /home/miles/docker/vpn/.envvpn /home/miles/docker/qbittorrent/config /home/miles/docker/qbittorrent/downloads /home/miles/docker/qbittorrent/incomplete /home/miles/docker/plex/data /home/miles/docker/plex/config
