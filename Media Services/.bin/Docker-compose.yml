@@ -16,13 +16,13 @@ services:
     restart: unless-stopped
     networks:
       - media
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-        reservations:
-          memory: 256M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+    #       cpus: '0.5'
+    #     reservations:
+    #       memory: 256M
 
   sonarr:
     # Sonarr is a PVR for Usenet and BitTorrent users.
@@ -44,13 +44,13 @@ services:
       - media
     depends_on:
       - jackett # Depends on Jackett service
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '1.0'
-        reservations:
-          memory: 512M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G
+    #       cpus: '1.0'
+    #     reservations:
+    #       memory: 512M
 
   radarr:
     # Radarr is a movie collection manager for Usenet and BitTorrent users.
@@ -72,13 +72,13 @@ services:
       - media
     depends_on:
       - jackett  # Depends on Jackett service
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '1.0'
-        reservations:
-          memory: 512M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G
+    #       cpus: '1.0'
+    #     reservations:
+    #       memory: 512M
 
   overseerr:
     # Overseerr is a request management and media discovery tool.
@@ -154,13 +154,13 @@ services:
       - 8080:8080  # Web UI port
     networks:
       - vpn
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-        reservations:
-          memory: 256M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+    #       cpus: '0.5'
+    #     reservations:
+    #       memory: 256M
 
   qbittorrent:
     # qBittorrent is a free and open-source BitTorrent client.
@@ -179,13 +179,13 @@ services:
       - /mnt/seagate/Completed\ Torrents/:/Downloaded:rw  # Downloaded files
       - /mnt/seagate/Unfinished\ Torrents/:/downloads:rw  # Incomplete files
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-          cpus: '1.0'
-        reservations:
-          memory: 512M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G
+    #       cpus: '1.0'
+    #     reservations:
+    #       memory: 512M
 
   plex:
     # Plex is a media server that organizes video, music, and photos.
@@ -213,13 +213,13 @@ services:
       - 32414:32414  # Plex port
     networks:
       - media  # Plex network
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-          cpus: '2.0'
-        reservations:
-          memory: 2G
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 4G
+    #       cpus: '2.0'
+    #     reservations:
+    #       memory: 2G
 
 networks:
   vpn:
