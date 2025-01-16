@@ -168,6 +168,11 @@ services:
       - PGID=1000  # Group ID
       - TZ=America/New_York  # Timezone
       - VERSION=docker  # Container version
+      - ADVERTISE_IP=  # Optional: External IP for Plex clients
+      - ALLOWED_NETWORKS=  # Optional: Comma-separated list of IP/networks allowed without auth
+      - PLEX_CLAIM=  # Optional: Claim token for server
+      - PLEX_UID=  # Optional: Plex user ID
+      - PLEX_GID=  # Optional: Plex group ID
     volumes:
       - /home/miles/docker/plex/data:/data  # Host directory
       - /home/miles/docker/plex/config:/config  # Host directory
