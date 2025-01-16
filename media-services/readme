@@ -1,0 +1,17 @@
+# Create necessary directories on the host machine
+
+mkdir -p /home/miles/docker/jackett/config
+mkdir -p /home/miles/docker/jackett/downloads
+mkdir -p /home/miles/docker/sonarr/config
+mkdir -p /home/miles/docker/sonarr/downloads
+mkdir -p /home/miles/docker/sonarr/media
+mkdir -p /home/miles/docker/radarr/config
+mkdir -p /home/miles/docker/radarr/downloads
+mkdir -p /home/miles/docker/radarr/media
+mkdir -p /home/miles/docker/overseerr/config
+mkdir -p /home/miles/docker/vpn/.envvpn
+mkdir -p /home/miles/docker/qbittorrent/config     s
+mkdir -p /home/miles/docker/qbittorrent/downloads  # these need to switched back to the external drive
+mkdir -p /home/miles/docker/qbittorrent/incomplete # these need to switched back to the external drive
+mkdir -p /home/miles/docker/plex/data
+mkdir -p /home/miles/docker/plex/config

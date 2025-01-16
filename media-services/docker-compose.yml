@@ -11,8 +11,8 @@ services:
       # Optional environment variables:
       # - AUTO_UPDATE=true
     volumes:
-      - /home/miles/docker/jackett/config:/config
-      - /home/miles/docker/shared/downloads:/downloads
+      - /home/miles/docker/jackett/config:/config  # Host directory
+      - /home/miles/docker/jackett/downloads:/downloads  # Host directory
     ports:
       - 9117:9117
     restart: unless-stopped
@@ -28,9 +28,9 @@ services:
       - TZ=America/New_York # Timezone
       - UMASK_SET=022 # Optional umask setting
     volumes:
-      - /home/miles/docker/sonarr/config:/config
-      - /home/miles/docker/shared/downloads:/downloads
-      - /home/miles/docker/shared/media:/media
+      - /home/miles/docker/sonarr/config:/config  # Host directory
+      - /home/miles/docker/sonarr/downloads:/downloads  # Host directory
+      - /home/miles/docker/sonarr/media:/media  # Host directory
     ports:
       - 8989:8989
     restart: unless-stopped
@@ -46,9 +46,9 @@ services:
       - TZ=America/New_York # Timezone
       - UMASK_SET=022 # Optional umask setting
     volumes:
-      - /home/miles/docker/radarr/config:/config
-      - /home/miles/docker/shared/downloads:/downloads
-      - /home/miles/docker/shared/media:/media
+      - /home/miles/docker/radarr/config:/config  # Host directory
+      - /home/miles/docker/radarr/downloads:/downloads  # Host directory
+      - /home/miles/docker/radarr/media:/media  # Host directory
     ports:
       - 7878:7878
     restart: unless-stopped
@@ -62,7 +62,7 @@ services:
       - PGID=1000  # Group ID
       - TZ=Etc/UTC  # Timezone
     volumes:
-      - ../.cnf:/config  # Configuration files
+      - /home/miles/docker/overseerr/config:/config  # Host directory
     ports:
       - 5055:5055  # Web UI port
     restart: unless-stopped
@@ -105,7 +105,7 @@ services:
       - NET_ADMIN               # Required
       - NET_RAW                 # Required
     env_file: 
-      - .envvpn                    # Required
+      - /home/miles/docker/vpn/.envvpn  # Host directory
     environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
       # - USER=                  # Your NordVPN username
       # - PASS=                  # Your NordVPN password
@@ -148,9 +148,9 @@ services:
       - TZ=Etc/UTC  # Timezone
       - WEBUI_PORT=8080  # Web UI port
     volumes:
-      - qbittorrent_config:/config  # Configuration files
-      - qbittorrent_downloads:/Downloaded:rw  # Downloaded files
-      - qbittorrent_incomplete:/downloads:rw  # Incomplete files
+      - /home/miles/docker/qbittorrent/config:/config  # Host directory
+      - /home/miles/docker/qbittorrent/downloads:/Downloaded:rw  # Host directory
+      - /home/miles/docker/qbittorrent/incomplete:/downloads:rw  # Host directory
     restart: unless-stopped
     # deploy:
     #   resources:
@@ -162,15 +162,15 @@ services:
     image: linuxserver/plex
     container_name: plex
     env_file:
-      - .envplex  # Environment variables
+      - /home/miles/docker/plex/.envplex  # Host directory
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
       - TZ=America/New_York  # Timezone
       - VERSION=docker  # Container version
     volumes:
-      - ../Test:/data  # Media files
-      - ../Test:/config  # Configuration files
+      - /home/miles/docker/plex/data:/data  # Host directory
+      - /home/miles/docker/plex/config:/config  # Host directory
     ports:
       - 32400:32400  # Plex port
       - 3005:3005  # Plex port
