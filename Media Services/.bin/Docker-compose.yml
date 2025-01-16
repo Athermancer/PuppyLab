@@ -192,7 +192,7 @@ services:
     image: linuxserver/plex
     container_name: plex
     env_file:
-      - .env  # Environment variables
+      - .envplex  # Environment variables
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
