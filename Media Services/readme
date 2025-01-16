@@ -56,6 +56,10 @@ Jackett is a tool that automates the process of searching for torrents. It provi
 - **Web UI**: Accessible at port `9117`.
 - **Configuration**: Stored in `jackett_config` volume.
 - **Downloads**: Stored in `jackett_downloads` volume.
+- **Command**:
+  ```sh
+  docker run -d --name=jackett -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 9117:9117 -v /path/to/config:/config -v /path/to/downloads:/downloads --restart unless-stopped linuxserver/jackett
+  ```
 
 #### Sonarr
 
@@ -65,6 +69,10 @@ Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS fee
 - **Configuration**: Stored in `sonarr_config` volume.
 - **TV Shows**: Stored in `/mnt/seagate/Shows`.
 - **Downloads**: Stored in `/mnt/seagate/Completed Torrents`.
+- **Command**:
+  ```sh
+  docker run -d --name=sonarr -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 8989:8989 -v /path/to/config:/config -v /path/to/tvshows:/tvshows -v /path/to/downloads:/downloads --restart unless-stopped linuxserver/sonarr
+  ```
 
 #### Radarr
 
@@ -74,6 +82,10 @@ Radarr is a movie collection manager for Usenet and BitTorrent users. It can mon
 - **Configuration**: Stored in `radarr_config` volume.
 - **Movies**: Stored in `/mnt/seagate/Movies`.
 - **Downloads**: Stored in `/mnt/seagate/Completed Torrents`.
+- **Command**:
+  ```sh
+  docker run -d --name=radarr -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 7878:7878 -v /path/to/config:/config -v /path/to/movies:/movies -v /path/to/downloads:/downloads --restart unless-stopped linuxserver/radarr
+  ```
 
 #### Overseerr
 
@@ -81,12 +93,20 @@ Overseerr is a request management and media discovery tool. It integrates with S
 
 - **Web UI**: Accessible at port `5055`.
 - **Configuration**: Stored in `../.cnf`.
+- **Command**:
+  ```sh
+  docker run -d --name=overseerr -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 5055:5055 -v /path/to/config:/config --restart unless-stopped sctx/overseerr
+  ```
 
 #### WordPress
 
 WordPress is a free and open-source content management system.
 
 - **Data**: Stored in `./wordpress`.
+- **Command**:
+  ```sh
+  docker run -d --name=wordpress -e WORDPRESS_DB_HOST=db:3306 -e WORDPRESS_DB_USER=exampleuser -e WORDPRESS_DB_PASSWORD=examplepass -e WORDPRESS_DB_NAME=exampledb -p 8080:80 -v /path/to/wordpress:/var/www/html --restart unless-stopped wordpress
+  ```
 
 #### Cloudflared Tunnel
 
@@ -94,6 +114,10 @@ Cloudflared Tunnel is used to securely connect to Cloudflare's network.
 
 - **Command**: `tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"`.
 - **Environment Variables**: Stored in `.envtunnel`.
+- **Command**:
+  ```sh
+  docker run -d --name=cloudflared --env-file /path/to/.envtunnel cloudflare/cloudflared:latest tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"
+  ```
 
 #### VPN
 
@@ -101,6 +125,10 @@ VPN service using NordVPN.
 
 - **Ports**: `6881` for BitTorrent, `8080` for Web UI.
 - **Environment Variables**: Stored in `.envvpn`.
+- **Command**:
+  ```sh
+  docker run -d --name=nordvpn --cap-add=NET_ADMIN -p 6881:6881 -p 8080:8080 --env-file /path/to/.envvpn --restart unless-stopped bubuntux/nordvpn
+  ```
 
 #### qBittorrent
 
@@ -110,6 +138,10 @@ qBittorrent is a free and open-source BitTorrent client.
 - **Configuration**: Stored in `qbittorrent_config` volume.
 - **Downloads**: Stored in `/mnt/seagate/Completed Torrents`.
 - **Incomplete Downloads**: Stored in `/mnt/seagate/Unfinished Torrents`.
+- **Command**:
+  ```sh
+  docker run -d --name=qbittorrent -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 8080:8080 -v /path/to/config:/config -v /path/to/downloads:/downloads -v /path/to/incomplete:/incomplete --restart unless-stopped linuxserver/qbittorrent
+  ```
 
 #### Plex
 
@@ -118,3 +150,7 @@ Plex is a media server that organizes video, music, and photos.
 - **Ports**: `32400` for Plex, other ports are commented out.
 - **Configuration**: Stored in `../Test`.
 - **Media Files**: Stored in `../Test`.
+- **Command**:
+  ```sh
+  docker run -d --name=plex -e PUID=1000 -e PGID=1000 -e TZ=Etc/UTC -p 32400:32400 -v /path/to/config:/config -v /path/to/media:/media --restart unless-stopped linuxserver/plex
+  ```
