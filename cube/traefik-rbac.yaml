@@ -24,6 +24,8 @@ rules:
       - tlsoptions
       - tlsstores
       - serverstransports
+      - traefikservices
+      - serverstransport
     verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources:
