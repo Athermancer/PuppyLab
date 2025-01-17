@@ -10,7 +10,14 @@ spec:
     - host: traefik-dashboard.local
       http:
         paths:
-          - path: /
+          - path: /dashboard/
+            pathType: Prefix
+            backend:
+              service:
+                name: traefik
+                port:
+                  number: 80
+          - path: /api/
             pathType: Prefix
             backend:
               service:
