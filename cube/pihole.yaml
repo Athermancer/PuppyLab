@@ -159,3 +159,29 @@ spec:
         - name: pihole-etc-dnsmasq-d
           persistentVolumeClaim:
             claimName: pihole-etc-dnsmasq-d
+---         
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-etc-pihole
+  namespace: pihole
+spec:
+  accessModes:
+   - ReadWriteOnce
+  storageClassName: pihole-storage
+  resources:
+   requests:
+    storage: "1Gi"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pihole-etc-dnsmasq-d
+  namespace: pihole
+spec:
+  accessModes:
+   - ReadWriteOnce
+  storageClassName: pihole-storage
+  resources:
+   requests:
+    storage: "1Gi"
