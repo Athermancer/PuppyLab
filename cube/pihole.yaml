@@ -168,7 +168,6 @@ metadata:
 spec:
   accessModes:
    - ReadWriteOnce
-  storageClassName: pihole-storage
   resources:
    requests:
     storage: "1Gi"
@@ -181,7 +180,6 @@ metadata:
 spec:
   accessModes:
    - ReadWriteOnce
-  storageClassName: pihole-storage
   resources:
    requests:
     storage: "1Gi"
