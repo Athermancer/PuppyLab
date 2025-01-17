@@ -101,8 +101,6 @@ spec:
     spec:
       nodeSelector:
         kubernetes.io/role: worker
-      strategy:
-        type: Recreate
       containers:
         - name: pihole
           image: pihole/pihole:latest
