@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: primary-config
+  name: pihole-config
   namespace: pihole
 data:
   TZ: America/Los_Angeles
