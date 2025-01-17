@@ -14,10 +14,10 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: your-service
+                name: traefik
                 port:
                   number: 80
-  tls:
-    - hosts:
-        - example.com
-      secretName: example-tls
+  # tls:
+  #   - hosts:
+  #       - example.com
+  #     secretName: example-tls
