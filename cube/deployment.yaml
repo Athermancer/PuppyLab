@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackett
+  labels:
+    app: jackett
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jackett
+  template:
+    metadata:
+      labels:
+        app: jackett
+    spec:
+      containers:
+      - name: jackett
+        image: ghcr.io/linuxserver/jackett:latest
+        ports:
+        - containerPort: 9117
+        env:
+        - name: PUID
+          value: "1000" # Change to match your user ID
+        - name: PGID
+          value: "1000" # Change to match your group ID
+        - name: TZ
+          value: "America/Los_Angeles" # Change to your timezone
+        volumeMounts:
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: jackett-config-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jackett
+spec:
+  selector:
+    app: jackett
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9117
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jackett-config-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
