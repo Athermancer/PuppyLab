@@ -7,7 +7,7 @@ services:
     environment:
       - PUID=1000 # User ID
       - PGID=1000 # Group ID
-      - TZ=America/New_York # Timezone
+      - TZ=America/Los_Angeles # Timezone
       # Optional environment variables:
       # - AUTO_UPDATE=true
     volumes:
@@ -25,7 +25,7 @@ services:
     environment:
       - PUID=1000 # User ID
       - PGID=1000 # Group ID
-      - TZ=America/New_York # Timezone
+      - TZ=America/Los_Angeles # Timezone
       - UMASK_SET=022 # Optional umask setting
     volumes:
       - /home/miles/docker/sonarr/config:/config  # Host directory
@@ -43,7 +43,7 @@ services:
     environment:
       - PUID=1000 # User ID
       - PGID=1000 # Group ID
-      - TZ=America/New_York # Timezone
+      - TZ=America/Los_Angeles # Timezone
       - UMASK_SET=022 # Optional umask setting
     volumes:
       - /home/miles/docker/radarr/config:/config  # Host directory
@@ -60,7 +60,7 @@ services:
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
-      - TZ=Etc/UTC  # Timezone
+      - TZ=America/Los_Angeles  # Timezone
     volumes:
       - /home/miles/docker/overseerr/config:/config  # Host directory
     ports:
@@ -145,12 +145,12 @@ services:
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
-      - TZ=Etc/UTC  # Timezone
+      - TZ=America/Los_Angeles  # Timezone
       - WEBUI_PORT=8080  # Web UI port
     volumes:
-      - /home/miles/docker/qbittorrent/config:/config  # Host directory
-      - /home/miles/docker/qbittorrent/downloads:/Downloaded:rw  # Host directory
-      - /home/miles/docker/qbittorrent/incomplete:/downloads:rw  # Host directory
+      - /home/miles/docker/qbittorrent/config:/config            # Host directory
+      - /home/miles/docker/qbittorrent/F:/downloaded:rw  # Host directory
+      - /home/miles/docker/qbittorrent/incomplete:/downloading:rw # Host directory
     restart: unless-stopped
     # deploy:
     #   resources:
@@ -166,13 +166,13 @@ services:
     environment:
       - PUID=1000  # User ID
       - PGID=1000  # Group ID
-      - TZ=America/New_York  # Timezone
+      - TZ=America/Los_Angeles  # Timezone
       - VERSION=docker  # Container version
-      - ADVERTISE_IP=  # Optional: External IP for Plex clients
-      - ALLOWED_NETWORKS=  # Optional: Comma-separated list of IP/networks allowed without auth
-      - PLEX_CLAIM=  # Optional: Claim token for server
-      - PLEX_UID=  # Optional: Plex user ID
-      - PLEX_GID=  # Optional: Plex group ID
+      # - ADVERTISE_IP=  # Optional: External IP for Plex clients
+      # - ALLOWED_NETWORKS=  # Optional: Comma-separated list of IP/networks allowed without auth
+      # - PLEX_CLAIM=  # Optional: Claim token for server
+      # - PLEX_UID=  # Optional: Plex user ID
+      # - PLEX_GID=  # Optional: Plex group ID
     volumes:
       - /home/miles/docker/plex/data:/data  # Host directory
       - /home/miles/docker/plex/config:/config  # Host directory
