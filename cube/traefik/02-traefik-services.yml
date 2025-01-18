@@ -17,7 +17,7 @@ metadata:
   name: traefik-web-service
 
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
     - targetPort: web
       port: 80
