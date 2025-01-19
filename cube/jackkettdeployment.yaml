@@ -64,7 +64,7 @@ metadata:
   name: jackett-ingress
   namespace: default
   annotations:
-    kubernetes.io/ingress.class: "traefik"
+     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   rules:
   - host: jackett.miles-homelab.org # Change to your desired hostname
