@@ -1,0 +1,38 @@
+additionalArguments:
+  - --tcpserverstransport.tls.insecureskipverify
+additionalVolumeMounts:
+  - name: localtime
+    mountPath: /etc/localtime
+    readOnly: true
+  - name: logs
+    mountPath: /var/log/traefik          
+deployment:
+  additionalVolumes:
+    - name: localtime
+      hostPath:
+        path: /etc/localtime
+    - name: logs
+      emptyDir: {}
+logs:
+  access:
+    enabled: true
+    filePath: /var/log/traefik/access.log
+    bufferingSize: 100
+persistence:
+  enabled: true
+  accessMode: ReadWriteMany
+ports:
+  web:
+    redirectTo:
+      port: websecure
+      permanent: true
+providers:
+  kubernetesIngress:
+    enabled: true
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
