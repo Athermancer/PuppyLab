@@ -57,19 +57,23 @@ spec:
   resources:
     requests:
       storage: 1Gi
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: jackett-nodeport
-#   labels:
-#     app: jackett
-# spec:
-#   type: NodePort
-#   selector:
-#     app: jackett
-#   ports:
-#   - protocol: TCP
-#     port: 80            # The port exposed by the service
-#     targetPort: 9117    # The port inside the container
-#     nodePort: 30007     # The port on the node (optional, Kubernetes will assign one if not specified)
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jackett-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+spec:
+  rules:
+  - host: jackett.miles-homelab.org # Change to your desired hostname
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jackett
+            port:
+              number: 80
