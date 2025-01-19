@@ -23,9 +23,10 @@ persistence:
   accessMode: ReadWriteMany
 ports:
   web:
-    redirectTo:
-      port: websecure
-      permanent: true
+    redirections:
+      entryPoint:
+        to: websecure
+        permanent: true
 providers:
   kubernetesIngress:
     enabled: true
