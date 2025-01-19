@@ -26,6 +26,7 @@ ports:
     redirections:
       entryPoint:
         to: websecure
+        scheme: https
         permanent: true
 providers:
   kubernetesIngress:
