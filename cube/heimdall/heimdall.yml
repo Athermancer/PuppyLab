@@ -44,7 +44,7 @@ spec:
       containers:
       - image: ghcr.io/linuxserver/heimdall # < the name of the docker image we will use
         name: heimdall                      # < name of container
-        imagePullPolicy: Always             # < always use the latest image when creating container/pod
+        imagePullPolicy: IfNotPresent            # < always use the latest image when creating container/pod
         env:                                # < the environment variables required (see container documentation)
         - name: PGID
           value: "100" # < group "user"
@@ -78,7 +78,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: heimdall-ingress
-  namespace: default
+  namespace: heimdall
   annotations:
      traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
@@ -90,6 +90,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: heimdall
+            name: heimdall-service
             port:
               number: 80
