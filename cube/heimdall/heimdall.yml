@@ -51,13 +51,10 @@ spec:
         - name: PUID
           value: "1041" # < user "docker"
         - name: TZ
-          value: Europe/Amsterdam
+          value: "America/Los_Angeles" # < timezone
         ports:                              # < the ports required (see container documentation)
          - containerPort: 80
            name: http-80
-           protocol: TCP
-         - containerPort: 443
-           name: https-443
            protocol: TCP
         volumeMounts:                       # < the volume mount in the container. Look at the relation volumelabel->pvc->pv
          - mountPath: /config               # < mount location in the container
@@ -76,9 +73,6 @@ spec:
     - name: http-80
       protocol: TCP
       port: 80
-    - name: https-443
-      protocol: TCP
-      port: 443
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
