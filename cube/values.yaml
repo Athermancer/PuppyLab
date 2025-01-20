@@ -20,7 +20,7 @@ logs:
     bufferingSize: 100
 persistence:
   enabled: true
-  accessMode: ReadWriteMany
+  accessMode: ReadWriteonce
 ports:
   web:
     redirections:
