@@ -88,7 +88,7 @@ metadata:
   name: primary
   namespace: pihole
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: pihole
