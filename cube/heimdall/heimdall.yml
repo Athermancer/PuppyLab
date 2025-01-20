@@ -103,7 +103,7 @@ spec:
         backend:
           serviceName: heimdall-service # < connect the ingress entry to service created earlier
           servicePort: 443
-  tls: # < placing a host in the TLS config will indicate a cert should be created
-  - hosts:
-    - heimdall.miles-homelab.org  # < hostname to access the heimdall
-    secretName: heimdall-miles-homelab-tls # < cert-manager will store the created certificate in this secret.
+  # tls: # < placing a host in the TLS config will indicate a cert should be created
+  # - hosts:
+  #   - heimdall.miles-homelab.org  # < hostname to access the heimdall
+  #   secretName: heimdall-miles-homelab-tls # < cert-manager will store the created certificate in this secret.
