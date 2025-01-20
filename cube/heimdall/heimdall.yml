@@ -16,13 +16,6 @@ spec:
   accessModes:
     - ReadWriteMany       # < Multiple pods can write to storage 
   persistentVolumeReclaimPolicy: Retain   # < The persistent volume can reclaimed 
-  mountOptions:           # < Mount options specific for nfs 4.1, remove if version < 4.1 nfs server is used
-    - hard
-    - nfsvers=4.1
-  nfs:
-    server: xxx.xxx.xxx.xxx         # < IP number of your NFS server
-    path: "/volume1/kubedata/heimdall" # < Name of your NFS share with subfolder
-    readOnly: false
 ---
 apiVersion: apps/v1
 kind: Deployment
