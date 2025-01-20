@@ -4,6 +4,7 @@ metadata:
   name: heimdall
 
 ---
+apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: heimdall-pvc   # < name of the persistent volume ("pv") in kubenetes
