@@ -41,7 +41,7 @@ spec:
       volumes:
       - name: nfs-heimdall  # < linkname of the volume for the pvc
         persistentVolumeClaim:
-          claimName: Heimdall-config-pvc # < pvc name we created in the previous yaml
+          claimName: heimdall-config-pvc # < pvc name we created in the previous yaml
       containers:
       - image: ghcr.io/linuxserver/heimdall # < the name of the docker image we will use
         name: heimdall                      # < name of container
