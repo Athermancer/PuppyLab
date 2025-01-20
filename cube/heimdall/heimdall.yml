@@ -85,25 +85,22 @@ spec:
       protocol: TCP
       port: 443
 ---
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: heimdall-ingress   # < name of ingress entry
-  namespace: heimdall      # < namespace where place the deployment and pods
+  name: heimdall-ingress
+  namespace: default
   annotations:
-    kubernetes.io/ingress.class: "nginx"   # < use the nginx ingress controller
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS" # < communicate with the backend (service/pod)
-    cert-manager.io/cluster-issuer: "letsencrypt-prod" # < use letsencrypt-prod application in kubernetes to generate ssl certificate
+     traefik.ingress.kubernetes.io/router.entrypoints: websecure
 spec:
   rules:
-  - host: heimdall.miles-homelab.org  # < hostname to access the heimdall
+  - host: heimdall.miles-homelab.org # Change to your desired hostname
     http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: heimdall-service # < connect the ingress entry to service created earlier
-          servicePort: 443
-  # tls: # < placing a host in the TLS config will indicate a cert should be created
-  # - hosts:
-  #   - heimdall.miles-homelab.org  # < hostname to access the heimdall
-  #   secretName: heimdall-miles-homelab-tls # < cert-manager will store the created certificate in this secret.
+          service:
+            name: heimdall
+            port:
+              number: 80
