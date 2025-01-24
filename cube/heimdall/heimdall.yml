@@ -2,19 +2,20 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: heimdall
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: heimdall-config-pvc
-  namespace: heimdall
+  name: heimdall-pvc
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
+  nfs:
+    path: /mnt/miles_nas/heimdall
+    server: 192.168.0.104
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -23,11 +24,6 @@ metadata:
   namespace: heimdall   # < namespace where place the deployment and pods
   labels:
     app: heimdall       # < label for tagging and reference
-spec:
-  replicas: 1           # < number of pods to deploy
-  selector:
-    matchLabels:
-      app: heimdall
   strategy:
     rollingUpdate:
       maxSurge: 0       # < The number of pods that can be created above the desired amount of pods during an update
@@ -41,7 +37,7 @@ spec:
       volumes:
       - name: nfs-heimdall  # < linkname of the volume for the pvc
         persistentVolumeClaim:
-          claimName: heimdall-config-pvc # < pvc name we created in the previous yaml
+          claimName: heimdall-pvc # < pvc name we created in the previous yaml
       containers:
       - image: ghcr.io/linuxserver/heimdall # < the name of the docker image we will use
         name: heimdall                      # < name of container

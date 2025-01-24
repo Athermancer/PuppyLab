@@ -1,4 +1,22 @@
 ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: Miles-mediaserver
+spec:
+  containers:
+  - image: registry.k8s.io/test-webserver
+    name: Miles-mediaserver
+    volumeMounts:
+    - mountPath: /nas
+      name: test-volume
+  volumes:
+  - name: test-volume
+    nfs:
+      server: 192.168.0.104
+      path: /mnt/miles_nas/Plex
+      readOnly: false
+---
 apiVersion: charts.kubealex.com/v1
 kind: K8SMediaserver
 metadata:
@@ -6,8 +24,8 @@ metadata:
 spec:
   # Default values copied from <project_dir>/helm-charts/k8s-mediaserver/values.yaml
   general:
-    ingress_host: k8s-mediaserver.k8s.test
-    plex_ingress_host: k8s-plex.k8s.test
+    ingress_host: Miles-mediaserver.miles-homelab.org
+    plex_ingress_host: plex.miles-homelab.org
     image_tag: latest
     podDistribution: cluster # can be "spread" or "cluster"
     #UID to run the process with
@@ -16,7 +34,7 @@ spec:
     pgid: 1000
     #Persistent storage selections and pathing
     storage:
-      customVolume: false #set to true if not using a PVC (must provide volume below)
+      customVolume: true #set to true if not using a PVC (must provide volume below)
       accessMode: ""
       pvcName: mediaserver-pvc
       size: 5Gi
@@ -30,8 +48,8 @@ spec:
         sabnzbd: sabnzbd
         config: config
       volumes: {}
-      #  hostPath:
-      #    path: /mnt/share
+      hostPath:
+       path: /mnt/miles_nas/Plex
     ingress:
       ingressClassName: ""
     nodeSelector: {}
