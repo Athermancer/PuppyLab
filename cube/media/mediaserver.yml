@@ -11,7 +11,7 @@ spec:
     - mountPath: /nas
       name: test-volume
   volumes:
-  - name: test-volume
+  - name: main-media
     nfs:
       server: 192.168.0.104
       path: /mnt/miles_nas/Plex
