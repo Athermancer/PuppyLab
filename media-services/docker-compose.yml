@@ -1,0 +1,214 @@
+version: '3.8'
+
+services:
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000 # User ID
+      - PGID=1000 # Group ID
+      - TZ=America/Los_Angeles # Timezone
+      # Optional environment variables:
+      # - AUTO_UPDATE=true
+    volumes:
+      - /mnt/nfs_share/docker/jackett/config:/config  # NFS share
+      - /mnt/nfs_share/docker/jackett/downloads:/downloads  # NFS share
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    depends_on:
+      - jackett
+    environment:
+      - PUID=1000 # User ID
+      - PGID=1000 # Group ID
+      - TZ=America/Los_Angeles # Timezone
+      - UMASK_SET=022 # Optional umask setting
+    volumes:
+      - /mnt/nfs_share/docker/sonarr/config:/config  # NFS share
+      - /mnt/nfs_share/docker/sonarr/downloads:/downloads  # NFS share
+      - /mnt/nfs_share/docker/sonarr/media:/media  # NFS share
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    depends_on:
+      - jackett
+    environment:
+      - PUID=1000 # User ID
+      - PGID=1000 # Group ID
+      - TZ=America/Los_Angeles # Timezone
+      - UMASK_SET=022 # Optional umask setting
+    volumes:
+      - /mnt/nfs_share/docker/radarr/config:/config  # NFS share
+      - /mnt/nfs_share/docker/radarr/downloads:/downloads  # NFS share
+      - /mnt/nfs_share/docker/radarr/media:/media  # NFS share
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  overseerr:
+    # Overseerr is a request management and media discovery tool.
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    environment:
+      - PUID=1000  # User ID
+      - PGID=1000  # Group ID
+      - TZ=America/Los_Angeles  # Timezone
+    volumes:
+      - /mnt/nfs_share/docker/overseerr/config:/config  # NFS share
+    ports:
+      - 5055:5055  # Web UI port
+    restart: unless-stopped
+    networks:
+      - media
+    depends_on:
+      - sonarr  # Depends on Sonarr service
+      - radarr  # Depends on Radarr service
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+
+  tunnel:
+    depends_on:
+      - overseerr  # Depends on Overseerr service
+    # Cloudflared Tunnel is used to securely connect to Cloudflare's network.
+    container_name: cloudflared-tunnel
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run --token "$CLOUDFLARE_TUNNEL_TOKEN"
+    env_file:
+      - /mnt/nfs_share/docker/.envtunnel  # NFS share
+    networks:
+      - media
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+
+  vpn:
+    image: ghcr.io/bubuntux/nordvpn
+    cap_add:
+      - NET_ADMIN               # Required
+      - NET_RAW                 # Required
+    env_file: 
+      - /mnt/nfs_share/docker/vpn/.envvpn  # NFS share
+    environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
+      # - USER=                  # Your NordVPN username
+      # - PASS=                  # Your NordVPN password
+      # - CYBER_SEC=             # Enable CyberSec (true/false)
+      # - OPENVPN_OPTS=          # Additional OpenVPN options
+      # - EXTRA_SUBNETS=         # Extra subnets to route through VPN
+      # - KILLSWITCH=            # Enable killswitch (true/false)
+      # - FIREWALL=              # Enable firewall (true/false)
+      # - TUNNEL=                # Enable tunnel (true/false)
+      # - DEBUG=                 # Enable debug mode (true/false)
+      - CONNECT=United_States
+      - TECHNOLOGY=NordLynx
+      - NETWORK=192.168.0.0/24   # Your local network
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1  # Recommended if using ipv4 only
+    ports:
+      - 6881:6881  # BitTorrent port
+      - 6881:6881/udp  # BitTorrent port
+      - 8080:8080  # Web UI port
+    networks:
+      - vpn
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M
+    #       cpus: '0.5'
+    #     reservations:
+    #       memory: 256M
+
+  qbittorrent:
+    # qBittorrent is a free and open-source BitTorrent client.
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    depends_on:
+      - vpn  # Depends on VPN service
+    network_mode: service:vpn   # Use VPN network 
+    environment:
+      - PUID=1000  # User ID
+      - PGID=1000  # Group ID
+      - TZ=America/Los_Angeles  # Timezone
+      - WEBUI_PORT=8080  # Web UI port
+    volumes:
+      - /mnt/nfs_share/docker/qbittorrent/config:/config  # NFS share
+      - /mnt/nfs_share/docker/qbittorrent/downloads:/downloads  # NFS share
+      - /mnt/nfs_share/docker/qbittorrent/incomplete:/downloading  # NFS share
+    restart: unless-stopped
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G
+
+  plex:
+    # Plex is a media server that organizes video, music, and photos.
+    image: linuxserver/plex
+    container_name: plex
+    env_file:
+      - /mnt/nfs_share/docker/plex/.envplex  # NFS share
+    environment:
+      - PUID=1000  # User ID
+      - PGID=1000  # Group ID
+      - TZ=America/Los_Angeles  # Timezone
+      - VERSION=docker  # Container version
+      # - ADVERTISE_IP=  # Optional: External IP for Plex clients
+      # - ALLOWED_NETWORKS=  # Optional: Comma-separated list of IP/networks allowed without auth
+      # - PLEX_CLAIM=  # Optional: Claim token for server
+      # - PLEX_UID=  # Optional: Plex user ID
+      # - PLEX_GID=  # Optional: Plex group ID
+    volumes:
+      - /mnt/nfs_share/docker/plex/data:/data  # NFS share
+      - /mnt/nfs_share/docker/plex/config:/config  # NFS share
+    ports:
+      - 32400:32400  # Plex port
+      - 3005:3005  # Plex port
+      - 8324:8324  # Plex port
+      - 32469:32469  # Plex port
+      - 1900:1900  # Plex port
+      - 32410:32410  # Plex port
+      - 32412:32412  # Plex port
+      - 32413:32413  # Plex port
+      - 32414:32414  # Plex port
+    networks:
+      - media  # Plex network
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 4G
+    #       cpus: '2.0'
+    #     reservations:
+    #       memory: 2G
+
+networks:
+  vpn:
+  media:
+
+volumes:
+  jackett_config:
+  jackett_downloads:
+  sonarr_config:
+  sonarr_tv:
+  sonarr_downloads:
+  radarr_config:
+  radarr_movies:
+  radarr_downloads:
+  qbittorrent_config:
+  qbittorrent_downloads:
+  qbittorrent_incomplete:
