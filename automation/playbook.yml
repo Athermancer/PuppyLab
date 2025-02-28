@@ -1,0 +1,30 @@
+---
+- name: Install SSH services and copy host keys to client
+  hosts: all
+  become: yes
+  vars_files:
+    - .env
+
+  tasks:
+    - name: Install SSH service on Debian
+      apt:
+        name: openssh-server
+        state: present
+
+    - name: Start and enable SSH service
+      service:
+        name: ssh
+        state: started
+        enabled: yes
+
+    - name: Copy SSH public key to client
+      copy:
+        src: ~/.ssh/id_ed25519.pub
+        dest: /tmp/id_ed25519.pub
+      delegate_to: localhost
+
+    - name: Append SSH public key to authorized_keys on client
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ lookup('file', '/tmp/id_ed25519.pub') }}"
