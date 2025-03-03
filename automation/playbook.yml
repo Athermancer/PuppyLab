@@ -1,6 +1,6 @@
 ---
 - name: Install SSH services and copy host keys to client
-  hosts: "input ip here"
+  hosts: client
   become: yes
   vars_files:
     - .env
@@ -31,15 +31,15 @@
 
     - name: Set hostname
       hostname:
-        name: "Miles_Cube{{ inventory_hostname_suffix | default('1') }}"
+        name: "Miles_Cube_Node_1"
 
-    - name: Configure static IP
-      lineinfile:
-        path: /etc/network/interfaces
-        regexp: '^address'
-        line: "address 192.168.0.2{{ inventory_hostname_suffix | default('1') }}"
-        state: present
-      notify: Restart networking
+    # - name: Configure static IP
+    #   lineinfile:
+    #     path: /etc/network/interfaces
+    #     regexp: '^address'
+    #     line: "address 192.168.0.2{{ inventory_hostname_suffix | default('1') }}"
+    #     state: present
+    #   notify: Restart networking
 
     - name: Create k3s config directory
       file:
@@ -62,8 +62,8 @@
     - name: Install k3s
       shell: curl -sfL https://get.k3s.io | sh -
 
-  handlers:
-    - name: Restart networking
-      service:
-        name: networking
-        state: restarted
+  # handlers:
+  #   - name: Restart networking
+  #     service:
+  #       name: networking
+  #       state: restarted
