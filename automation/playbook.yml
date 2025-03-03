@@ -1,6 +1,6 @@
 ---
 - name: Install SSH services and copy host keys to client
-  hosts: all
+  hosts: "input ip here"
   become: yes
   vars_files:
     - .env
