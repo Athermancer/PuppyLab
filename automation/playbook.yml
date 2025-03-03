@@ -33,13 +33,13 @@
       hostname:
         name: "Miles_Cube_Node_1"
 
-    # - name: Configure static IP
-    #   lineinfile:
-    #     path: /etc/network/interfaces
-    #     regexp: '^address'
-    #     line: "address 192.168.0.2{{ inventory_hostname_suffix | default('1') }}"
-    #     state: present
-    #   notify: Restart networking
+    - name: Configure static IP
+      lineinfile:
+        path: /etc/network/interfaces
+        regexp: '^address'
+        line: "address 192.168.0.201"
+        state: present
+      notify: Restart networking
 
     - name: Create k3s config directory
       file:
