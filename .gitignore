@@ -7,3 +7,4 @@ resolv.conf
 
 # Ignore all subdirectories in desktop_docker
 desktop_docker/**/
+desktop_docker/resolv.conf
