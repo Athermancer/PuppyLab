@@ -2,7 +2,8 @@ version: '3.8'
 
 networks:
   default:
-    driver: host
+    driver: bridge
+  # This network is used for the VPN container to allow other containers to access it
   vpn_network:
     driver: host
 
