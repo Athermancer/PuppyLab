@@ -3,6 +3,7 @@
 .envtunnel
 PORTS.md
 settings.json
+resolv.conf
 
 # Ignore all subdirectories in desktop_docker
 desktop_docker/**/
