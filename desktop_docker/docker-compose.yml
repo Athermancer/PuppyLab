@@ -2,9 +2,9 @@ version: '3.8'
 
 networks:
   default:
-    driver: bridge
+    driver: host
   vpn_network:
-    driver: bridge
+    driver: host
 
 services:
   plex:
