@@ -83,38 +83,22 @@ services:
       - radarr
       - sonarr
 
-  qbittorrent:
-    image: linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    networks:
-      - vpn_network
-    ports:
-      - "8080:8080"
-      - "6881:6881"
-      - "6881:6881/udp"
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - WEBUI_PORT=8080
-    volumes:
-      - ./config/qbittorrent:/config
-      - ./downloads:/downloads
-    restart: unless-stopped
-    depends_on:
-      - nordvpn
-
-  nordvpn:
-    image: bubuntux/nordvpn:latest
-    container_name: nordvpn
+  vpn:
+    image: ghcr.io/bubuntux/nordvpn
     cap_add:
-      - NET_ADMIN
-    devices:
-      - /dev/net/tun
-    environment:
-      - NORDVPN_USERNAME=${NORDVPN_USERNAME}
-      - NORDVPN_PASSWORD=${NORDVPN_PASSWORD}
-      - CONNECT=United_States # Change to your preferred server
+      - NET_ADMIN               # Required
+      - NET_RAW                 # Required
+    environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
+      - TOKEN=f6f2bb45...     # Required
+      - CONNECT=United_States
       - TECHNOLOGY=NordLynx
-    networks:
-      - vpn_network
-    restart: unless-stopped
+      - NETWORK=192.168.1.0/24  # So it can be accessed within the local network
+    ports:
+      - 8080:8080
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
+  torrent:
+    image: ghcr.io/linuxserver/qbittorrent
+    network_mode: service:vpn
+    depends_on:
+      - vpn
