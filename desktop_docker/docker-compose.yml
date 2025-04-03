@@ -92,7 +92,7 @@ services:
       - TOKEN=${TOKEN}          # Use value from .env
       - CONNECT=${CONNECT}      # Use value from .env
       - TECHNOLOGY=${TECHNOLOGY} # Use value from .env
-      - NETWORK=192.168.1.0/24  # So it can be accessed within the local network
+      - NETWORK=10.0.0.0/24  # So it can be accessed within the local network
     ports:
       - 8080:8080
     sysctls:
