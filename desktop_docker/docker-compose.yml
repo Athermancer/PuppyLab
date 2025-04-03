@@ -98,7 +98,6 @@ services:
       - 8080:8080
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
-
   torrent:
     image: ghcr.io/linuxserver/qbittorrent
     network_mode: service:vpn
