@@ -96,11 +96,6 @@ services:
       - NETWORK=10.0.0.0/24
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1
-    volumes:
-      - ./resolv.conf:/etc/resolv.conf
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
     network_mode: bridge
     ports:
       - "8080:8080"    
