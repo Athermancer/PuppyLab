@@ -3,6 +3,7 @@
 .envtunnel
 PORTS.md
 settings.json
-media_services/**/resolv.conf
+media_services/**/
+
 
 # Ignore all subdirectories in media_servicesdesktop_docker/resolv.conf
