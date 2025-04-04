@@ -17,7 +17,8 @@ services:
       - VERSION=docker
     volumes:
       - ./config/plex:/config
-      - J:/:/media
+      - 'J:/movies:/media/movies'
+      - 'J:/tv:/media/tv'
     restart: unless-stopped
 
   jackett:
