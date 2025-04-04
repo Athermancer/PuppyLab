@@ -11,13 +11,13 @@ services:
     ports:
       - 32400:32400
     environment:
-      # - PLEX_CLAIM=${PLEX_CLAIM}
+      - PLEX_CLAIM=${PLEX_CLAIM}
       - PUID=1000
       - PGID=1000
       - VERSION=docker
     volumes:
       - ./config/plex:/config
-      - ./media:/media
+       - /mnt/j:/media
     restart: unless-stopped
 
   jackett:
@@ -30,7 +30,7 @@ services:
       - PGID=1000
     volumes:
       - ./config/jackett:/config
-      - ./downloads:/downloads
+      - /mnt/j:/media
     restart: unless-stopped
     depends_on:
       - plex
@@ -45,8 +45,7 @@ services:
       - PGID=1000
     volumes:
       - ./config/radarr:/config
-      - ./media:/media
-      - ./downloads:/downloads
+      - /mnt/j:/media
     restart: unless-stopped
     depends_on:
       - jackett
@@ -61,8 +60,7 @@ services:
       - PGID=1000
     volumes:
       - ./config/sonarr:/config
-      - ./media:/media
-      - ./downloads:/downloads
+      - /mnt/j:/media
     restart: unless-stopped
     depends_on:
       - jackett
@@ -111,7 +109,7 @@ services:
       - WEBUI_PORT=8080
     volumes:
       - ./config/qbittorrent:/config
-      - ./downloads:/downloads
+      - /mnt/j:/media
 
     depends_on:
       - vpn
