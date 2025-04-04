@@ -4,6 +4,7 @@
 PORTS.md
 settings.json
 media_services/**/
+desktop_docker/**/
 
 
 # Ignore all subdirectories in media_servicesdesktop_docker/resolv.conf
