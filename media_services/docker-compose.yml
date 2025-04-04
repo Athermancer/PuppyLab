@@ -3,9 +3,6 @@ version: '3.8'
 networks:
   default:
     driver: bridge
-  # This network is used for the VPN container to allow other containers to access it
-  vpn_network:
-    driver: host
 
 services:
   plex:
@@ -88,20 +85,39 @@ services:
 
   vpn:
     image: ghcr.io/bubuntux/nordvpn
+    container_name: vpn
     cap_add:
-      - NET_ADMIN               # Required
-      - NET_RAW                 # Required
-    environment:                # Review https://github.com/bubuntux/nordvpn#environment-variables
-      - TOKEN=${TOKEN}          # Use value from .env
-      - CONNECT=${CONNECT}      # Use value from .env
-      - TECHNOLOGY=${TECHNOLOGY} # Use value from .env
-      - NETWORK=10.0.0.0/24  # So it can be accessed within the local network
-    ports:
-      - 8080:8080
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      - TOKEN=${TOKEN}
+      - CONNECT=${CONNECT}
+      - TECHNOLOGY=${TECHNOLOGY}
+      - NETWORK=10.0.0.0/24
     sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1  # Recomended if using ipv4 only
+      - net.ipv6.conf.all.disable_ipv6=1
+    volumes:
+      - ./resolv.conf:/etc/resolv.conf
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
+    network_mode: bridge
+    ports:
+      - "8080:8080"    
+    restart: unless-stopped
+
   torrent:
     image: ghcr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
     network_mode: service:vpn
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - WEBUI_PORT=8080
+    volumes:
+      - ./config/qbittorrent:/config
+      - ./downloads:/downloads
+
     depends_on:
       - vpn
+    restart: unless-stopped
