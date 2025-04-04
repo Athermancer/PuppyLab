@@ -12,6 +12,7 @@ services:
     ports:
       - 32400:32400
     environment:
+      - PLEX_CLAIM=${PLEX_CLAIM}
       - PUID=1000
       - PGID=1000
       - VERSION=docker
