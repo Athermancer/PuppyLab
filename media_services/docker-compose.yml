@@ -17,7 +17,7 @@ services:
       - VERSION=docker
     volumes:
       - ./config/plex:/config
-       - /mnt/j:/media
+      - J:/:/media
     restart: unless-stopped
 
   jackett:
@@ -30,7 +30,7 @@ services:
       - PGID=1000
     volumes:
       - ./config/jackett:/config
-      - /mnt/j:/media
+      - J:/:/media
     restart: unless-stopped
     depends_on:
       - plex
@@ -45,7 +45,7 @@ services:
       - PGID=1000
     volumes:
       - ./config/radarr:/config
-      - /mnt/j:/media
+      - J:/:/media
     restart: unless-stopped
     depends_on:
       - jackett
@@ -60,7 +60,7 @@ services:
       - PGID=1000
     volumes:
       - ./config/sonarr:/config
-      - /mnt/j:/media
+      - J:/:/media
     restart: unless-stopped
     depends_on:
       - jackett
@@ -109,7 +109,7 @@ services:
       - WEBUI_PORT=8080
     volumes:
       - ./config/qbittorrent:/config
-      - /mnt/j:/media
+      - J:/:/media
 
     depends_on:
       - vpn
