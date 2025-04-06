@@ -5,6 +5,6 @@ PORTS.md
 settings.json
 media_services/**/
 desktop_docker/**/
-
+Heimdall/**/
 
 # Ignore all subdirectories in media_servicesdesktop_docker/resolv.conf
