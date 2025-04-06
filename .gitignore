@@ -6,3 +6,4 @@ settings.json
 desktop_docker/**/
 Heimdall/**/
 media_services/**/
+nginx/**/
