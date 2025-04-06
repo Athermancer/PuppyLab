@@ -1,0 +1,24 @@
+/**
+ * HeimdallDashboardService is responsible for managing and providing data
+ * for the Heimdall dashboard. This service interacts with various data sources
+ * to aggregate and present information in a meaningful way for the dashboard.
+ *
+ * Methods:
+ * - getDashboardData(): Retrieves the data required for displaying the dashboard.
+ * - updateDashboardSettings(settings): Updates the dashboard settings based on user preferences.
+ * - refreshDashboard(): Refreshes the dashboard data to ensure it is up-to-date.
+ * - getWidgetData(widgetId): Retrieves data for a specific widget on the dashboard.
+ *
+ * Usage:
+ * const dashboardService = new HeimdallDashboardService();
+ * const data = dashboardService.getDashboardData();
+ *
+ * Dependencies:
+ * - DataService: Used for fetching data from various sources.
+ * - SettingsService: Used for managing user settings related to the dashboard.
+ *
+ * Example:
+ * const dashboardService = new HeimdallDashboardService();
+ * dashboardService.updateDashboardSettings({ theme: 'dark' });
+ * const widgetData = dashboardService.getWidgetData('widget-123');
+ */
