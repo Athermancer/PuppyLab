@@ -3,8 +3,11 @@
 .envtunnel
 PORTS.md
 settings.json
-docker_stacks/media_services/**/
 desktop_docker/**/
-docker_stacks/Heimdall/**/
+
 
 # Ignore all subdirectories in media_servicesdesktop_docker/resolv.conf
+
+# Ignore all files in the folder except docker-compose.yml
+**/*
+!**/docker-compose.yml
