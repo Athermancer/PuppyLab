@@ -5,7 +5,7 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.2.0
+# Version: 1.2.1
 # Description: Provision Debian server with users, Docker, network config, and cleanup after reboot.
 # Author: Miles + ChatGPT
 # ================================
@@ -26,7 +26,7 @@ fi
 # Start logging with timestamps
 exec > >(ts '[%Y-%m-%d %H:%M:%S] ' | tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab bootstrap provisioning script v1.2.0 ==="
+echo "=== Starting PuppyLab bootstrap provisioning script v1.2.1 ==="
 
 run_cmd() {
     echo ">>> $*"
@@ -37,7 +37,8 @@ run_cmd() {
 DRY_RUN=false
 
 echo "--- Checking dry-run mode ---"
-read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
+echo -n "Do you want to enable DRY RUN mode? (yes/no): " >&2
+read -r DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
     echo "Dry run mode enabled. No users or configurations will be modified."
@@ -51,7 +52,8 @@ set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
     while true; do
-        read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
+        echo -n "Enter node number for this system (e.g., 1, 2, 3): " >&2
+        read -r NODE_NUMBER
         if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
             break
         else
@@ -155,7 +157,8 @@ PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Detected primary interface: $PRIMARY_INTERFACE"
 
 # Prompt for IP config
-read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
+echo -n "Do you want to keep existing IP configuration? (yes/no): " >&2
+read -r KEEP_IP
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
 NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
@@ -164,7 +167,8 @@ if [[ "$KEEP_IP" == "yes" ]]; then
     echo "Keeping existing network configuration."
 else
     while true; do
-        read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
+        echo -n "Enter desired static IP address (e.g., 192.168.1.100/24): " >&2
+        read -r STATIC_IP
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
         else
@@ -173,7 +177,8 @@ else
     done
 
     while true; do
-        read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
+        echo -n "Enter gateway (e.g., 192.168.1.1): " >&2
+        read -r GATEWAY
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
         else
@@ -182,7 +187,8 @@ else
     done
 
     while true; do
-        read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
+        echo -n "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " >&2
+        read -r DNS_SERVERS
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
         else
@@ -212,7 +218,7 @@ fi
 
 # === Plan removal of bootstrap user ===
 CURRENT_USER=$(whoami)
-WHITELIST=("root" "puppydev" "docker")
+WHITELIST=("root" "puppydev" "docker" "daemon")
 
 if [[ ! " ${WHITELIST[*]} " =~ " $CURRENT_USER " ]]; then
     echo "--- Scheduling removal of temporary user '$CURRENT_USER' after reboot..."
@@ -268,6 +274,7 @@ done
 
 # Prompt user to delete each non-whitelisted user
 for user in $NON_WHITELISTED_USERS; do
+    echo "--------------------------------------------"
     read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
     if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
         echo "Deleting user '$user'..."
