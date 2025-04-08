@@ -37,7 +37,7 @@ run_cmd() {
 DRY_RUN=false
 
 echo "--- Checking dry-run mode ---"
-read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
+read -r -p "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
     echo "Dry run mode enabled. No users or configurations will be modified."
@@ -51,7 +51,7 @@ set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
     while true; do
-        read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
+        read -r -p "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
         if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
             break
         else
@@ -117,7 +117,7 @@ echo \
 
 run_cmd apt update
 
-read -rp "Do you want to install Docker plugins (buildx and compose)? (yes/no): " INSTALL_PLUGINS
+read -r -p "Do you want to install Docker plugins (buildx and compose)? (yes/no): " INSTALL_PLUGINS
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
@@ -154,7 +154,7 @@ PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Detected primary interface: $PRIMARY_INTERFACE"
 
 # Prompt for IP config
-read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
+read -r -p "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
 NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
@@ -163,7 +163,7 @@ if [[ "$KEEP_IP" == "yes" ]]; then
     echo "Keeping existing network configuration."
 else
     while true; do
-        read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
+        read -r -p "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
         else
@@ -172,7 +172,7 @@ else
     done
 
     while true; do
-        read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
+        read -r -p "Enter gateway (e.g., 192.168.1.1): " GATEWAY
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
         else
@@ -181,7 +181,7 @@ else
     done
 
     while true; do
-        read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
+        read -r -p "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
         else
@@ -268,7 +268,7 @@ done
 # Prompt user to delete each non-whitelisted user
 for user in $NON_WHITELISTED_USERS; do
     echo "--------------------------------------------"
-    read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
+    read -r -p "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
     if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
         echo "Deleting user '$user'..."
         run_cmd userdel -r "$user" || true
@@ -286,7 +286,7 @@ echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
-read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
+read -r -p "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
     run_cmd systemctl reboot
