@@ -272,7 +272,8 @@ echo "Users created: puppydev, docker"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
-read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
+echo "Do you want to reboot the system now? (yes/no): "
+read -r  REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
     run_cmd systemctl reboot
