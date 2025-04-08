@@ -5,7 +5,7 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.2.1
+# Version: 1.3.0
 # Description: Provision Debian server with users, Docker, network config, and cleanup after reboot.
 # Author: Miles + ChatGPT
 # ================================
@@ -26,7 +26,7 @@ fi
 # Start logging with timestamps
 exec > >(ts '[%Y-%m-%d %H:%M:%S] ' | tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab bootstrap provisioning script v1.2.1 ==="
+echo "=== Starting PuppyLab bootstrap provisioning script v1.3.0 ==="
 
 run_cmd() {
     echo ">>> $*"
@@ -38,7 +38,7 @@ DRY_RUN=false
 
 echo "--- Checking dry-run mode ---"
 echo "Do you want to enable DRY RUN mode? (yes/no): "
-read  DRY_RUN_CONFIRMATION
+read DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
     echo "Dry run mode enabled. No users or configurations will be modified."
@@ -166,6 +166,18 @@ echo "Do you want to keep existing IP configuration? (yes/no): "
 read -r KEEP_IP
 echo "You selected: $KEEP_IP"
 
+# Flush secondary IP addresses if needed
+flush_secondary_ip() {
+    echo "Flushing secondary IP addresses from $PRIMARY_INTERFACE..."
+    SECONDARY_IPS=$(ip addr show "$PRIMARY_INTERFACE" | grep inet | awk '{print $2}' | grep -v "$STATIC_IP")
+    for ip in $SECONDARY_IPS; do
+        run_cmd ip addr del "$ip" dev "$PRIMARY_INTERFACE"
+        echo "Removed secondary IP address: $ip"
+    done
+}
+
+flush_secondary_ip
+
 NETWORK_CONFIG_DIR="/etc/systemd/network"
 NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
 
@@ -224,6 +236,7 @@ EOF
 
     echo "Static IP configuration applied."
 fi
+
 CURRENT_USER=$(whoami)
 WHITELIST=("root" "puppydev" "docker" "daemon")
 
