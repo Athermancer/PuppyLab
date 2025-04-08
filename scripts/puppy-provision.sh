@@ -208,6 +208,20 @@ run_cmd systemctl restart systemd-networkd
 
 echo "Static IP configuration applied."
 
+# Schedule cleanup of the provision script after reboot
+echo "--- Scheduling cleanup of the provision script..."
+SCRIPT_PATH="$(realpath "$0")"
+CLEANUP_SCRIPT="/etc/rc.local"
+
+cat > "$CLEANUP_SCRIPT" <<EOF
+#!/bin/bash
+rm -f "$SCRIPT_PATH"
+exit 0
+EOF
+
+chmod +x "$CLEANUP_SCRIPT"
+echo "Provision script will be deleted after reboot."
+
 # Final message
 echo "=== PuppyLab bootstrap provisioning v1.0.2 completed successfully! ==="
 
