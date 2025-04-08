@@ -176,7 +176,8 @@ if [[ "$KEEP_IP" == "yes" ]]; then
     DNS_SERVERS="$CURRENT_DNS"  # Use current DNS servers
 else
     while true; do
-        read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
+        echo "Enter desired static IP address (e.g., 192.168.1.100/24): "
+        read -r STATIC_IP
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
         else
@@ -185,7 +186,8 @@ else
     done
 
     while true; do
-        read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
+        echo "Enter gateway (e.g., 192.168.1.1): "
+        read -r GATEWAY
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
         else
@@ -194,7 +196,8 @@ else
     done
 
     while true; do
-        read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
+        echo "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): "
+        read -r  DNS_SERVERS
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
         else
