@@ -37,7 +37,8 @@ run_cmd() {
 DRY_RUN=false
 
 echo "--- Checking dry-run mode ---"
-read -r -p "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
+echo "Do you want to enable DRY RUN mode? (yes/no): "
+read  DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
     echo "Dry run mode enabled. No users or configurations will be modified."
