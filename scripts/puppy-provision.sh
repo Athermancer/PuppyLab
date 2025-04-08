@@ -38,6 +38,7 @@ DRY_RUN=false
 
 echo "--- Checking dry-run mode ---"
 echo -n "Do you want to enable DRY RUN mode? (yes/no): " >&2
+sleep 0.1  # Ensure output is flushed
 read -r DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
@@ -53,6 +54,7 @@ set_hostname_with_input() {
 
     while true; do
         echo -n "Enter node number for this system (e.g., 1, 2, 3): " >&2
+        sleep 0.1  # Ensure output is flushed
         read -r NODE_NUMBER
         if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
             break
@@ -119,7 +121,8 @@ echo \
 
 run_cmd apt update
 
-echo "Do you want to install Docker plugins (buildx and compose)? (yes/no):"
+echo -n "Do you want to install Docker plugins (buildx and compose)? (yes/no): " >&2
+sleep 0.1  # Ensure output is flushed
 read -r INSTALL_PLUGINS
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -158,6 +161,7 @@ echo "Detected primary interface: $PRIMARY_INTERFACE"
 
 # Prompt for IP config
 echo -n "Do you want to keep existing IP configuration? (yes/no): " >&2
+sleep 0.1  # Ensure output is flushed
 read -r KEEP_IP
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
@@ -168,6 +172,7 @@ if [[ "$KEEP_IP" == "yes" ]]; then
 else
     while true; do
         echo -n "Enter desired static IP address (e.g., 192.168.1.100/24): " >&2
+        sleep 0.1  # Ensure output is flushed
         read -r STATIC_IP
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
@@ -178,6 +183,7 @@ else
 
     while true; do
         echo -n "Enter gateway (e.g., 192.168.1.1): " >&2
+        sleep 0.1  # Ensure output is flushed
         read -r GATEWAY
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
@@ -188,6 +194,7 @@ else
 
     while true; do
         echo -n "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " >&2
+        sleep 0.1  # Ensure output is flushed
         read -r DNS_SERVERS
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
@@ -275,7 +282,9 @@ done
 # Prompt user to delete each non-whitelisted user
 for user in $NON_WHITELISTED_USERS; do
     echo "--------------------------------------------"
-    read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
+    echo -n "Do you want to delete user '$user'? (yes/no/skip): " >&2
+    sleep 0.1  # Ensure output is flushed
+    read -r DELETE_USER_CONFIRMATION
     if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
         echo "Deleting user '$user'..."
         run_cmd userdel -r "$user" || true
@@ -293,7 +302,9 @@ echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
-read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
+echo -n "Do you want to reboot the system now? (yes/no): " >&2
+sleep 0.1  # Ensure output is flushed
+read -r REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
     run_cmd systemctl reboot
