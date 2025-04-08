@@ -33,60 +33,30 @@ run_cmd() {
     "$@"
 }
 
-# === Parse arguments ===
-AUTO_APPROVE=false
-
-for arg in "$@"; do
-    case $arg in
-        --auto-approve)
-            AUTO_APPROVE=true
-            shift
-            ;;
-        *)
-            echo "Unknown argument: $arg"
-            exit 1
-            ;;
-    esac
-done
-
-if [[ "$AUTO_APPROVE" == true ]]; then
-    echo "Auto-approve mode enabled. All prompts will be auto-confirmed."
-fi
-
 # === Dry run mode ===
 DRY_RUN=false
 
-if [[ "$AUTO_APPROVE" == true ]]; then
-    DRY_RUN=false
-    echo "Auto-approve mode active: Skipping dry-run prompt."
+read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
+if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
+    DRY_RUN=true
+    echo "Dry run mode enabled. No users or configurations will be modified."
 else
-    read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
-    if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
-        DRY_RUN=true
-        echo "Dry run mode enabled. No users or configurations will be modified."
-    else
-        DRY_RUN=false
-        echo "Dry run mode disabled. System changes will be applied."
-    fi
+    DRY_RUN=false
+    echo "Dry run mode disabled. System changes will be applied."
 fi
 
 # === Hostname setup ===
 set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
-    if [[ "$AUTO_APPROVE" == true ]]; then
-        NODE_NUMBER=1
-        echo "Auto-approve mode: defaulting node number to $NODE_NUMBER"
-    else
-        while true; do
-            read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
-            if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
-                break
-            else
-                echo "Invalid number. Please enter a numeric value."
-            fi
-        done
-    fi
+    while true; do
+        read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
+        if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
+            break
+        else
+            echo "Invalid number. Please enter a numeric value."
+        fi
+    done
 
     NEW_HOSTNAME="docker_node_$NODE_NUMBER"
 
@@ -117,13 +87,8 @@ for user in puppydev docker; do
     else
         echo "--- Creating user '$user'..."
         run_cmd useradd -m -s /bin/bash "$user"
-        if [[ "$AUTO_APPROVE" == true ]]; then
-            echo "Auto-approve mode: setting default password for '$user'."
-            echo "$user:$user" | chpasswd
-        else
-            echo "Please set a password for user '$user':"
-            run_cmd passwd "$user"
-        fi
+        echo "Please set a password for user '$user':"
+        run_cmd passwd "$user"
     fi
 done
 
@@ -151,13 +116,8 @@ echo \
 
 run_cmd apt update
 
-if [[ "$AUTO_APPROVE" == true ]]; then
-    INSTALL_PLUGINS="yes"
-else
-    echo "Do you want to install Docker plugins (buildx and compose)? (yes/no):"
-    read -r INSTALL_PLUGINS
-fi
-
+echo "Do you want to install Docker plugins (buildx and compose)? (yes/no):"
+read -r INSTALL_PLUGINS
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
@@ -193,11 +153,7 @@ echo "--- Network configuration ---"
 PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Detected primary interface: $PRIMARY_INTERFACE"
 
-if [[ "$AUTO_APPROVE" == true ]]; then
-    KEEP_IP="no"
-else
-    read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
-fi
+read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
 NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
@@ -294,6 +250,30 @@ EOF
 else
     echo "Current user '$CURRENT_USER' is whitelisted. No removal scheduled."
 fi
+
+# === Check and delete non-whitelisted users ===
+echo "--- Checking for non-whitelisted users to delete ---"
+
+# List all users excluding the whitelisted ones
+ALL_USERS=$(getent passwd | cut -d: -f1)
+NON_WHITELISTED_USERS=""
+
+for user in $ALL_USERS; do
+    if [[ ! " ${WHITELIST[*]} " =~ " $user " ]]; then
+        NON_WHITELISTED_USERS+="$user "
+    fi
+done
+
+# Prompt user to delete each non-whitelisted user
+for user in $NON_WHITELISTED_USERS; do
+    read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
+    if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
+        echo "Deleting user '$user'..."
+        run_cmd userdel -r "$user" || true
+    elif [[ "$DELETE_USER_CONFIRMATION" == "skip" ]]; then
+        echo "Skipping user '$user'."
+    fi
+done
 
 # === Final summary ===
 echo "--- Final Summary ---"
