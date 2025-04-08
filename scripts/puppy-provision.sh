@@ -5,8 +5,8 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.1.3
-# Description: Provision Debian server with users, Docker, network config, and cleanup.
+# Version: 1.1.4
+# Description: Provision Debian server with users, Docker, network config, and cleanup after reboot.
 # Author: Miles + ChatGPT
 # ================================
 
@@ -14,7 +14,7 @@ LOGFILE="/var/log/puppy-bootstrap.log"
 
 exec > >(tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab bootstrap provisioning script v1.1.3 ==="
+echo "=== Starting PuppyLab bootstrap provisioning script v1.1.4 ==="
 
 run_cmd() {
     echo ">>> $*"
@@ -142,39 +142,48 @@ create_dir_if_missing /opt/docker-projects puppydev
 create_dir_if_missing /home/docker/docker-projects docker
 create_dir_if_missing /home/puppydev/docker-projects puppydev
 
-# === Clean bootstrap user ===
-BOOTSTRAP_USER=$(logname || echo "unknown")
-if [[ "$BOOTSTRAP_USER" != "root" && "$BOOTSTRAP_USER" != "unknown" && "$BOOTSTRAP_USER" != "puppydev" && "$BOOTSTRAP_USER" != "docker" ]]; then
-    echo "--- Removing bootstrap user '$BOOTSTRAP_USER'..."
-    run_cmd pkill -KILL -u "$BOOTSTRAP_USER" || true
-    run_cmd userdel -r "$BOOTSTRAP_USER" || true
-else
-    echo "No bootstrap user to remove or user is system-reserved."
-fi
-
-# === Clean up unexpected users ===
-echo "--- Cleaning up unexpected users..."
-
+# === Plan removal of bootstrap user ===
+CURRENT_USER=$(whoami)
 WHITELIST=("root" "puppydev" "docker")
 
-ALL_USERS=$(awk -F: '($3 >= 1000) { print $1 }' /etc/passwd)
+if [[ ! " ${WHITELIST[*]} " =~ " $CURRENT_USER " ]]; then
+    echo "--- Scheduling removal of temporary user '$CURRENT_USER' after reboot..."
 
-for USER in $ALL_USERS; do
-    if [[ " ${WHITELIST[*]} " != *" $USER "* ]]; then
-        echo "User '$USER' is not in whitelist."
-        if [[ "$DRY_RUN" == true ]]; then
-            echo "[DRY RUN] Would remove: $USER"
-        else
-            echo "Removing unexpected user: $USER"
-            run_cmd pkill -KILL -u "$USER" || true
-            run_cmd userdel -r "$USER" || true
-        fi
-    else
-        echo "Keeping user: $USER"
-    fi
-done
+    # Create cleanup script
+    cat <<EOF > /usr/local/bin/remove-temp-user.sh
+#!/bin/bash
+if id "$CURRENT_USER" &>/dev/null; then
+    echo "Removing temporary user: $CURRENT_USER"
+    pkill -KILL -u "$CURRENT_USER" || true
+    userdel -r "$CURRENT_USER" || true
+else
+    echo "User '$CURRENT_USER' does not exist. Skipping."
+fi
+systemctl disable remove-temp-user.service
+rm -f /usr/local/bin/remove-temp-user.sh
+EOF
 
-echo "User cleanup complete."
+    chmod +x /usr/local/bin/remove-temp-user.sh
+
+    # Create systemd service
+    cat <<EOF > /etc/systemd/system/remove-temp-user.service
+[Unit]
+Description=Remove temporary user after provisioning
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/remove-temp-user.sh
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    run_cmd systemctl enable remove-temp-user.service
+
+else
+    echo "Current user '$CURRENT_USER' is whitelisted. No removal scheduled."
+fi
 
 # === Static IP configuration ===
 echo "--- Static IP configuration ---"
@@ -231,7 +240,7 @@ run_cmd systemctl restart systemd-networkd
 
 echo "Static IP configuration applied."
 
-echo "=== PuppyLab bootstrap provisioning v1.1.3 completed successfully! ==="
+echo "=== PuppyLab bootstrap provisioning v1.1.4 completed successfully! ==="
 
 read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
