@@ -118,8 +118,8 @@ echo \
   $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 run_cmd apt update
-
-read -r -p "Do you want to install Docker plugins (buildx and compose)? (yes/no): " INSTALL_PLUGINS
+echo "Do you want to install Docker plugins (buildx and compose)? (yes/no): "
+read -r INSTALL_PLUGINS
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
@@ -162,7 +162,8 @@ ip -o -4 addr show "$PRIMARY_INTERFACE" | awk '{print "IP Address: " $4}'
 ip route | grep default | awk '{print "Gateway: " $3}'
 cat /etc/resolv.conf | grep nameserver | awk '{print "DNS Server: " $2}'
 
-read -r -p "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
+echo "Do you want to keep existing IP configuration? (yes/no): "
+read -r KEEP_IP
 echo "You selected: $KEEP_IP"
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
