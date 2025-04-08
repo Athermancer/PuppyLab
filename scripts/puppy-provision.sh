@@ -162,11 +162,9 @@ ip -o -4 addr show "$PRIMARY_INTERFACE" | awk '{print "IP Address: " $4}'
 ip route | grep default | awk '{print "Gateway: " $3}'
 cat /etc/resolv.conf | grep nameserver | awk '{print "DNS Server: " $2}'
 
-echo "Do you want to keep existing IP configuration? (yes/no): "
-read -r KEEP_IP
+read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
 echo "You selected: $KEEP_IP"
 
-# Flush secondary IP addresses if needed
 flush_secondary_ip() {
     echo "Flushing secondary IP addresses from $PRIMARY_INTERFACE..."
     SECONDARY_IPS=$(ip addr show "$PRIMARY_INTERFACE" | grep inet | awk '{print $2}' | grep -v "$STATIC_IP")
@@ -178,16 +176,14 @@ flush_secondary_ip() {
 
 flush_secondary_ip
 
-NETWORK_CONFIG_DIR="/etc/systemd/network"
-NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
-
 if [[ "$KEEP_IP" == "yes" ]]; then
     echo "Keeping existing network configuration."
+    STATIC_IP="$CURRENT_IP"  # Use current IP address
+    GATEWAY="$CURRENT_GATEWAY"  # Use current gateway
+    DNS_SERVERS="$CURRENT_DNS"  # Use current DNS servers
 else
     while true; do
-        echo "Enter desired static IP address (e.g., 192.168.1.100/24): "
-        read -r STATIC_IP
-        echo "You entered: $STATIC_IP"
+        read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
         else
@@ -196,9 +192,7 @@ else
     done
 
     while true; do
-        echo "Enter gateway (e.g., 192.168.1.1): "
-        read -r GATEWAY
-        echo "You entered: $GATEWAY"
+        read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
         else
@@ -207,19 +201,22 @@ else
     done
 
     while true; do
-        echo "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): "
-        read -r DNS_SERVERS
-        echo "You entered: $DNS_SERVERS"
+        read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
         else
             echo "Invalid DNS servers format. Please try again."
         fi
     done
+fi
 
-    mkdir -p "$NETWORK_CONFIG_DIR"
+# === Apply network configuration changes ===
+NETWORK_CONFIG_DIR="/etc/systemd/network"
+NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
 
-    cat > "$NETWORK_CONFIG_FILE" <<EOF
+mkdir -p "$NETWORK_CONFIG_DIR"
+
+cat > "$NETWORK_CONFIG_FILE" <<EOF
 [Match]
 Name=$PRIMARY_INTERFACE
 
@@ -229,14 +226,14 @@ Gateway=$GATEWAY
 DNS=$DNS_SERVERS
 EOF
 
-    echo "Network configuration written to $NETWORK_CONFIG_FILE"
+echo "Network configuration written to $NETWORK_CONFIG_FILE"
 
-    run_cmd systemctl enable systemd-networkd
-    run_cmd systemctl restart systemd-networkd
+run_cmd systemctl enable systemd-networkd
+run_cmd systemctl restart systemd-networkd
 
-    echo "Static IP configuration applied."
-fi
+echo "Static IP configuration applied."
 
+# === Plan removal of bootstrap user ===
 CURRENT_USER=$(whoami)
 WHITELIST=("root" "puppydev" "docker" "daemon")
 
@@ -295,8 +292,7 @@ done
 # Prompt user to delete each non-whitelisted user
 for user in $NON_WHITELISTED_USERS; do
     echo "--------------------------------------------"
-    echo "Do you want to delete user '$user'? (yes/no/skip): "
-    read -r DELETE_USER_CONFIRMATION
+    read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
     if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
         echo "Deleting user '$user'..."
         run_cmd userdel -r "$user" || true
@@ -314,8 +310,7 @@ echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
-echo "Do you want to reboot the system now? (yes/no): "
-read -r REBOOT_CONFIRMATION
+read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
     run_cmd systemctl reboot
