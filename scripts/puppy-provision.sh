@@ -48,7 +48,7 @@ set_hostname_with_input() {
         fi
     done
 
-    NEW_HOSTNAME="Docker_node_$NODE_NUMBER"
+    NEW_HOSTNAME="docker-node-$NODE_NUMBER"
 
     echo "Assigning hostname: $NEW_HOSTNAME"
     run_cmd hostnamectl set-hostname "$NEW_HOSTNAME"
@@ -127,26 +127,26 @@ run_cmd usermod -aG docker puppydev
 run_cmd systemctl enable docker
 run_cmd systemctl start docker
 
-# Create shared Docker projects directory
-echo "--- Creating shared Docker projects directory at /opt/docker-projects..."
+# Create shared docker projects directory
+echo "--- Creating shared docker projects directory at /opt/docker-projects..."
 run_cmd mkdir -p /opt/docker-projects
 run_cmd chown puppydev:puppydev /opt/docker-projects
-echo "Shared Docker projects directory created."
+echo "Shared docker projects directory created."
 
-# Create Docker projects directory in docker user's home
+# Create docker projects directory in docker user's home
 DOCKER_HOME="/home/docker"
 DOCKER_USER_PROJECTS="$DOCKER_HOME/docker-projects"
 
-echo "--- Creating Docker projects directory for docker user at $DOCKER_USER_PROJECTS..."
+echo "--- Creating docker projects directory for docker user at $DOCKER_USER_PROJECTS..."
 run_cmd mkdir -p "$DOCKER_USER_PROJECTS"
 run_cmd chown docker:docker "$DOCKER_USER_PROJECTS"
 echo "Docker user projects directory created."
 
-# Create Docker projects directory in puppydev user's home
+# Create docker projects directory in puppydev user's home
 PUPPYDEV_HOME="/home/puppydev"
 PUPPYDEV_USER_PROJECTS="$PUPPYDEV_HOME/docker-projects"
 
-echo "--- Creating Docker projects directory for puppydev user at $PUPPYDEV_USER_PROJECTS..."
+echo "--- Creating docker projects directory for puppydev user at $PUPPYDEV_USER_PROJECTS..."
 run_cmd mkdir -p "$PUPPYDEV_USER_PROJECTS"
 run_cmd chown puppydev:puppydev "$PUPPYDEV_USER_PROJECTS"
 echo "Puppydev user projects directory created."
