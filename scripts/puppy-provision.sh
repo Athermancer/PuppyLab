@@ -161,20 +161,13 @@ echo "--- Current Network Settings ---"
 ip -o -4 addr show "$PRIMARY_INTERFACE" | awk '{print "IP Address: " $4}'
 ip route | grep default | awk '{print "Gateway: " $3}'
 cat /etc/resolv.conf | grep nameserver | awk '{print "DNS Server: " $2}'
-
-read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
+echo "Do you want to keep existing IP configuration? (yes/no): "
+read -r KEEP_IP
 echo "You selected: $KEEP_IP"
-
-flush_secondary_ip() {
-    echo "Flushing secondary IP addresses from $PRIMARY_INTERFACE..."
-    SECONDARY_IPS=$(ip addr show "$PRIMARY_INTERFACE" | grep inet | awk '{print $2}' | grep -v "$STATIC_IP")
-    for ip in $SECONDARY_IPS; do
-        run_cmd ip addr del "$ip" dev "$PRIMARY_INTERFACE"
-        echo "Removed secondary IP address: $ip"
-    done
-}
-
-flush_secondary_ip
+if [[ "$KEEP_IP" != "yes" && "$KEEP_IP" != "no" ]]; then
+    echo "Invalid input. Please enter 'yes' or 'no'."
+    exit 1
+fi
 
 if [[ "$KEEP_IP" == "yes" ]]; then
     echo "Keeping existing network configuration."
@@ -233,80 +226,46 @@ run_cmd systemctl restart systemd-networkd
 
 echo "Static IP configuration applied."
 
-# === Plan removal of bootstrap user ===
-CURRENT_USER=$(whoami)
-WHITELIST=("root" "puppydev" "docker" "daemon")
+# === Always remove 'bootstrap' user ===
+echo "--- Scheduling removal of 'bootstrap' user after reboot..."
 
-if [[ ! " ${WHITELIST[*]} " =~ " $CURRENT_USER " ]]; then
-    echo "--- Scheduling removal of temporary user '$CURRENT_USER' after reboot..."
-
-    # Create cleanup script
-    cat <<EOF > /usr/local/bin/remove-temp-user.sh
+# Create cleanup script for 'bootstrap' user
+cat <<EOF > /usr/local/bin/remove-bootstrap-user.sh
 #!/bin/bash
-if id "$CURRENT_USER" &>/dev/null; then
-    echo "Removing temporary user: $CURRENT_USER"
-    pkill -KILL -u "$CURRENT_USER" || true
-    userdel -r "$CURRENT_USER" || true
+if id "bootstrap" &>/dev/null; then
+    echo "Removing 'bootstrap' user..."
+    pkill -KILL -u "bootstrap" || true
+    userdel -r "bootstrap" || true
 else
-    echo "User '$CURRENT_USER' does not exist. Skipping."
+    echo "'bootstrap' user does not exist. Skipping."
 fi
-systemctl disable remove-temp-user.service
-rm -f /usr/local/bin/remove-temp-user.sh
+systemctl disable remove-bootstrap-user.service
+rm -f /usr/local/bin/remove-bootstrap-user.sh
 EOF
 
-    chmod +x /usr/local/bin/remove-temp-user.sh
+chmod +x /usr/local/bin/remove-bootstrap-user.sh
 
-    # Create systemd service
-    cat <<EOF > /etc/systemd/system/remove-temp-user.service
+# Create systemd service for removing 'bootstrap' after reboot
+cat <<EOF > /etc/systemd/system/remove-bootstrap-user.service
 [Unit]
-Description=Remove temporary user after provisioning
+Description=Remove 'bootstrap' user after provisioning
 After=multi-user.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/local/bin/remove-temp-user.sh
+ExecStart=/usr/local/bin/remove-bootstrap-user.sh
 
 [Install]
 WantedBy=multi-user.target
 EOF
 
-    run_cmd systemctl enable remove-temp-user.service
-
-else
-    echo "Current user '$CURRENT_USER' is whitelisted. No removal scheduled."
-fi
-
-# === Check and delete non-whitelisted users ===
-echo "--- Checking for non-whitelisted users to delete ---"
-
-# List all users excluding the whitelisted ones
-ALL_USERS=$(getent passwd | cut -d: -f1)
-NON_WHITELISTED_USERS=""
-
-for user in $ALL_USERS; do
-    if [[ ! " ${WHITELIST[*]} " =~ " $user " ]]; then
-        NON_WHITELISTED_USERS+="$user "
-    fi
-done
-
-# Prompt user to delete each non-whitelisted user
-for user in $NON_WHITELISTED_USERS; do
-    echo "--------------------------------------------"
-    read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
-    if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
-        echo "Deleting user '$user'..."
-        run_cmd userdel -r "$user" || true
-    elif [[ "$DELETE_USER_CONFIRMATION" == "skip" ]]; then
-        echo "Skipping user '$user'."
-    fi
-done
+run_cmd systemctl enable remove-bootstrap-user.service
 
 # === Final summary ===
 echo "--- Final Summary ---"
 echo "Hostname: $NEW_HOSTNAME"
 echo "Static IP: $STATIC_IP"
 echo "Users created: puppydev, docker"
-echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
