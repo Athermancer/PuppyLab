@@ -5,7 +5,7 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.0.2
+# Version: 1.1.0
 # Description: Provision Debian server with users, Docker, network config, and cleanup.
 # Author: Miles + ChatGPT
 # ================================
@@ -25,13 +25,49 @@ fi
 # === Start Logging ===
 exec > >(tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab bootstrap provisioning script v1.0.2 ==="
+echo "=== Starting PuppyLab bootstrap provisioning script v1.1.0 ==="
 
-# Function for verbose commands
+# === Functions ===
+
+# Verbose run command
 run_cmd() {
     echo ">>> $*"
     "$@"
 }
+
+# Prompt for node number and set the hostname
+set_hostname_with_input() {
+    echo "--- Setting system hostname ---"
+
+    while true; do
+        read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
+        if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
+            break
+        else
+            echo "Invalid number. Please enter a numeric value."
+        fi
+    done
+
+    NEW_HOSTNAME="Docker_node_$NODE_NUMBER"
+
+    echo "Assigning hostname: $NEW_HOSTNAME"
+    run_cmd hostnamectl set-hostname "$NEW_HOSTNAME"
+    echo "$NEW_HOSTNAME" > /etc/hostname
+
+    # Update /etc/hosts
+    if grep -q "127.0.1.1" /etc/hosts; then
+        sed -i "s/^127.0.1.1.*/127.0.1.1\t$NEW_HOSTNAME/" /etc/hosts
+    else
+        echo "127.0.1.1	$NEW_HOSTNAME" >> /etc/hosts
+    fi
+
+    echo "Hostname set to '$NEW_HOSTNAME'."
+}
+
+# === Start of provisioning ===
+
+# Set hostname with user input
+set_hostname_with_input
 
 # Install essentials
 echo "--- Installing sudo and required packages..."
@@ -129,10 +165,8 @@ fi
 # Clean up unexpected users
 echo "--- Cleaning up unexpected users..."
 
-# Define whitelist
 WHITELIST=("root" "puppydev" "docker")
 
-# Get all users with UID >= 1000
 ALL_USERS=$(awk -F: '($3 >= 1000) { print $1 }' /etc/passwd)
 
 for USER in $ALL_USERS; do
@@ -202,30 +236,14 @@ EOF
 
 echo "Network configuration written to $NETWORK_CONFIG_FILE"
 
-# Enable and restart networkd service
 run_cmd systemctl enable systemd-networkd
 run_cmd systemctl restart systemd-networkd
 
 echo "Static IP configuration applied."
 
-# Schedule cleanup of the provision script after reboot
-echo "--- Scheduling cleanup of the provision script..."
-SCRIPT_PATH="$(realpath "$0")"
-CLEANUP_SCRIPT="/etc/rc.local"
-
-cat > "$CLEANUP_SCRIPT" <<EOF
-#!/bin/bash
-rm -f "$SCRIPT_PATH"
-exit 0
-EOF
-
-chmod +x "$CLEANUP_SCRIPT"
-echo "Provision script will be deleted after reboot."
-
 # Final message
-echo "=== PuppyLab bootstrap provisioning v1.0.2 completed successfully! ==="
+echo "=== PuppyLab bootstrap provisioning v1.1.0 completed successfully! ==="
 
-# Prompt for reboot
 read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
@@ -233,5 +251,3 @@ if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
 else
     echo "Reboot canceled. Please reboot manually to apply all changes."
 fi
-echo "=== End of script ==="
-# End of script
