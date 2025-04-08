@@ -37,9 +37,7 @@ run_cmd() {
 DRY_RUN=false
 
 echo "--- Checking dry-run mode ---"
-echo -n "Do you want to enable DRY RUN mode? (yes/no): " >&2
-sleep 0.3  # Ensure output is flushed
-read -r DRY_RUN_CONFIRMATION
+read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
     echo "Dry run mode enabled. No users or configurations will be modified."
@@ -53,9 +51,7 @@ set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
     while true; do
-        echo -n "Enter node number for this system (e.g., 1, 2, 3): " >&2
-        sleep 0.3  # Ensure output is flushed
-        read -r NODE_NUMBER
+        read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
         if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
             break
         else
@@ -121,9 +117,7 @@ echo \
 
 run_cmd apt update
 
-echo -n "Do you want to install Docker plugins (buildx and compose)? (yes/no): " >&2
-sleep 0.3  # Ensure output is flushed
-read -r INSTALL_PLUGINS
+read -rp "Do you want to install Docker plugins (buildx and compose)? (yes/no): " INSTALL_PLUGINS
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
@@ -160,9 +154,7 @@ PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Detected primary interface: $PRIMARY_INTERFACE"
 
 # Prompt for IP config
-echo -n "Do you want to keep existing IP configuration? (yes/no): " >&2
-sleep 0.3  # Ensure output is flushed
-read -r KEEP_IP
+read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
 NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
@@ -171,9 +163,7 @@ if [[ "$KEEP_IP" == "yes" ]]; then
     echo "Keeping existing network configuration."
 else
     while true; do
-        echo -n "Enter desired static IP address (e.g., 192.168.1.100/24): " >&2
-        sleep 0.3  # Ensure output is flushed
-        read -r STATIC_IP
+        read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
         else
@@ -182,9 +172,7 @@ else
     done
 
     while true; do
-        echo -n "Enter gateway (e.g., 192.168.1.1): " >&2
-        sleep 0.3  # Ensure output is flushed
-        read -r GATEWAY
+        read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
         else
@@ -193,9 +181,7 @@ else
     done
 
     while true; do
-        echo -n "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " >&2
-        sleep 0.3  # Ensure output is flushed
-        read -r DNS_SERVERS
+        read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
         else
@@ -282,9 +268,7 @@ done
 # Prompt user to delete each non-whitelisted user
 for user in $NON_WHITELISTED_USERS; do
     echo "--------------------------------------------"
-    echo -n "Do you want to delete user '$user'? (yes/no/skip): " >&2
-    sleep 0.3  # Ensure output is flushed
-    read -r DELETE_USER_CONFIRMATION
+    read -rp "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
     if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
         echo "Deleting user '$user'..."
         run_cmd userdel -r "$user" || true
@@ -302,9 +286,7 @@ echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
-echo -n "Do you want to reboot the system now? (yes/no): " >&2
-sleep 0.3  # Ensure output is flushed
-read -r REBOOT_CONFIRMATION
+read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
     run_cmd systemctl reboot
