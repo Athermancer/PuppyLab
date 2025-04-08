@@ -5,7 +5,7 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.1.1
+# Version: 1.1.2
 # Description: Provision Debian server with users, Docker, network config, and cleanup.
 # Author: Miles + ChatGPT
 # ================================
@@ -25,7 +25,7 @@ fi
 # === Start Logging ===
 exec > >(tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab bootstrap provisioning script v1.1.1 ==="
+echo "=== Starting PuppyLab bootstrap provisioning script v1.1.2 ==="
 
 # === Functions ===
 
@@ -46,7 +46,7 @@ set_hostname_with_input() {
         fi
     done
 
-    NEW_HOSTNAME="Docker_node_$NODE_NUMBER"
+    NEW_HOSTNAME="docker_node_$NODE_NUMBER"
 
     echo "Assigning hostname: $NEW_HOSTNAME"
     run_cmd hostnamectl set-hostname "$NEW_HOSTNAME"
@@ -83,18 +83,6 @@ echo "User 'docker' created."
 echo "--- Installing Docker..."
 run_cmd mkdir -m 0755 -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
-echo "Verifying Docker GPG key fingerprint..."
-curl -fsSL https://download.docker.com/linux/debian/gpg -o docker.gpg
-if gpg --show-keys docker.gpg | grep -q "9DC8 5822 9FC7 DD38 854A E2D8 8D81 803C 0EBF CD88"; then
-    echo "Fingerprint verified."
-    gpg --dearmor -o /etc/apt/keyrings/docker.gpg docker.gpg
-    rm docker.gpg
-else
-    echo "Fingerprint verification failed. Exiting."
-    rm docker.gpg
-    exit 1
-fi
 
 echo "Adding Docker repository..."
 echo \
@@ -219,7 +207,7 @@ run_cmd systemctl restart systemd-networkd
 
 echo "Static IP configuration applied."
 
-echo "=== PuppyLab bootstrap provisioning v1.1.1 completed successfully! ==="
+echo "=== PuppyLab bootstrap provisioning v1.1.2 completed successfully! ==="
 
 read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
