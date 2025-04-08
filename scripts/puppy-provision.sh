@@ -5,44 +5,88 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.1.4
+# Version: 1.2.0
 # Description: Provision Debian server with users, Docker, network config, and cleanup after reboot.
 # Author: Miles + ChatGPT
 # ================================
 
 LOGFILE="/var/log/puppy-bootstrap.log"
 
-exec > >(tee -a "$LOGFILE") 2>&1
+# === Ensure required packages for logging ===
+echo "--- Checking for required packages..."
 
-echo "=== Starting PuppyLab bootstrap provisioning script v1.1.4 ==="
+if ! command -v ts &>/dev/null; then
+    echo "Installing 'moreutils' for timestamped logging..."
+    apt update
+    apt install -y moreutils
+else
+    echo "'moreutils' already installed. Good to go."
+fi
+
+# Start logging with timestamps
+exec > >(ts '[%Y-%m-%d %H:%M:%S] ' | tee -a "$LOGFILE") 2>&1
+
+echo "=== Starting PuppyLab bootstrap provisioning script v1.2.0 ==="
 
 run_cmd() {
     echo ">>> $*"
     "$@"
 }
 
+# === Parse arguments ===
+AUTO_APPROVE=false
+
+for arg in "$@"; do
+    case $arg in
+        --auto-approve)
+            AUTO_APPROVE=true
+            shift
+            ;;
+        *)
+            echo "Unknown argument: $arg"
+            exit 1
+            ;;
+    esac
+done
+
+if [[ "$AUTO_APPROVE" == true ]]; then
+    echo "Auto-approve mode enabled. All prompts will be auto-confirmed."
+fi
+
 # === Dry run mode ===
-read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
-if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
-    DRY_RUN=true
-    echo "Dry run mode enabled. No users will be actually deleted."
-else
+DRY_RUN=false
+
+if [[ "$AUTO_APPROVE" == true ]]; then
     DRY_RUN=false
-    echo "Dry run mode disabled. Users will be deleted if not in whitelist."
+    echo "Auto-approve mode active: Skipping dry-run prompt."
+else
+    read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
+    if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
+        DRY_RUN=true
+        echo "Dry run mode enabled. No users or configurations will be modified."
+    else
+        DRY_RUN=false
+        echo "Dry run mode disabled. System changes will be applied."
+    fi
 fi
 
 # === Hostname setup ===
 set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
-    while true; do
-        read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
-        if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
-            break
-        else
-            echo "Invalid number. Please enter a numeric value."
-        fi
-    done
+    if [[ "$AUTO_APPROVE" == true ]]; then
+        NODE_NUMBER=1
+        echo "Auto-approve mode: defaulting node number to $NODE_NUMBER"
+    else
+        while true; do
+            read -rp "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
+            if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
+                break
+            else
+                echo "Invalid number. Please enter a numeric value."
+            fi
+        done
+    fi
 
     NEW_HOSTNAME="docker_node_$NODE_NUMBER"
 
@@ -67,36 +111,32 @@ run_cmd apt update
 run_cmd apt install -y sudo curl apt-transport-https ca-certificates gnupg lsb-release
 
 # === User creation ===
-if id "puppydev" &>/dev/null; then
-    echo "User 'puppydev' already exists. Skipping creation."
-else
-    echo "--- Creating 'puppydev' user..."
-    run_cmd useradd -m -s /bin/bash puppydev
-    echo "Please set a password for 'puppydev':"
-    run_cmd passwd puppydev
-fi
-
-if id "docker" &>/dev/null; then
-    echo "User 'docker' already exists. Skipping creation."
-else
-    echo "--- Creating 'docker' user..."
-    run_cmd useradd -m -s /bin/bash docker
-fi
+for user in puppydev docker; do
+    if id "$user" &>/dev/null; then
+        echo "User '$user' already exists. Skipping creation."
+    else
+        echo "--- Creating user '$user'..."
+        run_cmd useradd -m -s /bin/bash "$user"
+        if [[ "$AUTO_APPROVE" == true ]]; then
+            echo "Auto-approve mode: setting default password for '$user'."
+            echo "$user:$user" | chpasswd
+        else
+            echo "Please set a password for user '$user':"
+            run_cmd passwd "$user"
+        fi
+    fi
+done
 
 # === Group assignments ===
 echo "--- Adding users to groups if needed..."
 for user in puppydev docker; do
-    if groups $user | grep -qw "sudo"; then
-        echo "User '$user' already in 'sudo' group. Skipping."
-    else
-        run_cmd usermod -aG sudo $user
-    fi
-
-    if groups $user | grep -qw "docker"; then
-        echo "User '$user' already in 'docker' group. Skipping."
-    else
-        run_cmd usermod -aG docker $user
-    fi
+    for group in sudo docker; do
+        if groups $user | grep -qw "$group"; then
+            echo "User '$user' already in '$group' group. Skipping."
+        else
+            run_cmd usermod -aG "$group" "$user"
+        fi
+    done
 done
 
 # === Install Docker ===
@@ -111,8 +151,13 @@ echo \
 
 run_cmd apt update
 
-echo "Do you want to install Docker plugins (buildx and compose)? (yes/no):"
-read -r INSTALL_PLUGINS
+if [[ "$AUTO_APPROVE" == true ]]; then
+    INSTALL_PLUGINS="yes"
+else
+    echo "Do you want to install Docker plugins (buildx and compose)? (yes/no):"
+    read -r INSTALL_PLUGINS
+fi
+
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
@@ -141,6 +186,71 @@ create_dir_if_missing() {
 create_dir_if_missing /opt/docker-projects puppydev
 create_dir_if_missing /home/docker/docker-projects docker
 create_dir_if_missing /home/puppydev/docker-projects puppydev
+
+# === Network Configuration ===
+echo "--- Network configuration ---"
+
+PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
+echo "Detected primary interface: $PRIMARY_INTERFACE"
+
+if [[ "$AUTO_APPROVE" == true ]]; then
+    KEEP_IP="no"
+else
+    read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
+fi
+
+NETWORK_CONFIG_DIR="/etc/systemd/network"
+NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
+
+if [[ "$KEEP_IP" == "yes" ]]; then
+    echo "Keeping existing network configuration."
+else
+    while true; do
+        read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
+        if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
+            break
+        else
+            echo "Invalid static IP format. Please try again."
+        fi
+    done
+
+    while true; do
+        read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
+        if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            break
+        else
+            echo "Invalid gateway format. Please try again."
+        fi
+    done
+
+    while true; do
+        read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
+        if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
+            break
+        else
+            echo "Invalid DNS servers format. Please try again."
+        fi
+    done
+
+    mkdir -p "$NETWORK_CONFIG_DIR"
+
+    cat > "$NETWORK_CONFIG_FILE" <<EOF
+[Match]
+Name=$PRIMARY_INTERFACE
+
+[Network]
+Address=$STATIC_IP
+Gateway=$GATEWAY
+DNS=$DNS_SERVERS
+EOF
+
+    echo "Network configuration written to $NETWORK_CONFIG_FILE"
+
+    run_cmd systemctl enable systemd-networkd
+    run_cmd systemctl restart systemd-networkd
+
+    echo "Static IP configuration applied."
+fi
 
 # === Plan removal of bootstrap user ===
 CURRENT_USER=$(whoami)
@@ -185,67 +295,19 @@ else
     echo "Current user '$CURRENT_USER' is whitelisted. No removal scheduled."
 fi
 
-# === Static IP configuration ===
-echo "--- Static IP configuration ---"
+# === Final summary ===
+echo "--- Final Summary ---"
+echo "Hostname: $NEW_HOSTNAME"
+echo "Static IP: $STATIC_IP"
+echo "Users created: puppydev, docker"
+echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
+echo "Reboot required to apply all changes."
 
-PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
-echo "Detected primary interface: $PRIMARY_INTERFACE"
-
-while true; do
-    read -rp "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
-    if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
-        break
-    else
-        echo "Invalid static IP format. Please try again."
-    fi
-done
-
-while true; do
-    read -rp "Enter gateway (e.g., 192.168.1.1): " GATEWAY
-    if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        break
-    else
-        echo "Invalid gateway format. Please try again."
-    fi
-done
-
-while true; do
-    read -rp "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
-    if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
-        break
-    else
-        echo "Invalid DNS servers format. Please try again."
-    fi
-done
-
-NETWORK_CONFIG_DIR="/etc/systemd/network"
-NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
-
-mkdir -p "$NETWORK_CONFIG_DIR"
-
-cat > "$NETWORK_CONFIG_FILE" <<EOF
-[Match]
-Name=$PRIMARY_INTERFACE
-
-[Network]
-Address=$STATIC_IP
-Gateway=$GATEWAY
-DNS=$DNS_SERVERS
-EOF
-
-echo "Network configuration written to $NETWORK_CONFIG_FILE"
-
-run_cmd systemctl enable systemd-networkd
-run_cmd systemctl restart systemd-networkd
-
-echo "Static IP configuration applied."
-
-echo "=== PuppyLab bootstrap provisioning v1.1.4 completed successfully! ==="
-
+# === Reboot prompt ===
 read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
-    run_cmd reboot
+    run_cmd systemctl reboot
 else
     echo "Reboot canceled. Please reboot manually to apply all changes."
 fi
