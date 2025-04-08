@@ -52,7 +52,8 @@ set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
     while true; do
-        read -r -p "Enter node number for this system (e.g., 1, 2, 3): " NODE_NUMBER
+        echo "Please enter the node number (e.g., 1, 2, 3): "
+        read -r NODE_NUMBER
         if [[ "$NODE_NUMBER" =~ ^[0-9]+$ ]]; then
             break
         else
@@ -155,7 +156,14 @@ PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Detected primary interface: $PRIMARY_INTERFACE"
 
 # Prompt for IP config
+# Display current network settings
+echo "--- Current Network Settings ---"
+ip -o -4 addr show "$PRIMARY_INTERFACE" | awk '{print "IP Address: " $4}'
+ip route | grep default | awk '{print "Gateway: " $3}'
+cat /etc/resolv.conf | grep nameserver | awk '{print "DNS Server: " $2}'
+
 read -r -p "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
+echo "You selected: $KEEP_IP"
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
 NETWORK_CONFIG_FILE="$NETWORK_CONFIG_DIR/20-wired.network"
@@ -164,7 +172,9 @@ if [[ "$KEEP_IP" == "yes" ]]; then
     echo "Keeping existing network configuration."
 else
     while true; do
-        read -r -p "Enter desired static IP address (e.g., 192.168.1.100/24): " STATIC_IP
+        echo "Enter desired static IP address (e.g., 192.168.1.100/24): "
+        read -r STATIC_IP
+        echo "You entered: $STATIC_IP"
         if [[ "$STATIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$ ]]; then
             break
         else
@@ -173,7 +183,9 @@ else
     done
 
     while true; do
-        read -r -p "Enter gateway (e.g., 192.168.1.1): " GATEWAY
+        echo "Enter gateway (e.g., 192.168.1.1): "
+        read -r GATEWAY
+        echo "You entered: $GATEWAY"
         if [[ "$GATEWAY" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             break
         else
@@ -182,7 +194,9 @@ else
     done
 
     while true; do
-        read -r -p "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): " DNS_SERVERS
+        echo "Enter DNS servers (comma separated, e.g., 1.1.1.1,8.8.8.8): "
+        read -r DNS_SERVERS
+        echo "You entered: $DNS_SERVERS"
         if [[ "$DNS_SERVERS" =~ ^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(,[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)*$ ]]; then
             break
         else
@@ -209,8 +223,6 @@ EOF
 
     echo "Static IP configuration applied."
 fi
-
-# === Plan removal of bootstrap user ===
 CURRENT_USER=$(whoami)
 WHITELIST=("root" "puppydev" "docker" "daemon")
 
@@ -269,7 +281,8 @@ done
 # Prompt user to delete each non-whitelisted user
 for user in $NON_WHITELISTED_USERS; do
     echo "--------------------------------------------"
-    read -r -p "Do you want to delete user '$user'? (yes/no/skip): " DELETE_USER_CONFIRMATION
+    echo "Do you want to delete user '$user'? (yes/no/skip): "
+    read -r DELETE_USER_CONFIRMATION
     if [[ "$DELETE_USER_CONFIRMATION" == "yes" ]]; then
         echo "Deleting user '$user'..."
         run_cmd userdel -r "$user" || true
@@ -287,7 +300,8 @@ echo "User cleanup scheduled for: $CURRENT_USER (if not whitelisted)"
 echo "Reboot required to apply all changes."
 
 # === Reboot prompt ===
-read -r -p "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
+echo "Do you want to reboot the system now? (yes/no): "
+read -r REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
     echo "Rebooting system..."
     run_cmd systemctl reboot
