@@ -36,6 +36,7 @@ run_cmd() {
 # === Dry run mode ===
 DRY_RUN=false
 
+echo "--- Checking dry-run mode ---"
 read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
@@ -153,6 +154,7 @@ echo "--- Network configuration ---"
 PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
 echo "Detected primary interface: $PRIMARY_INTERFACE"
 
+# Prompt for IP config
 read -rp "Do you want to keep existing IP configuration? (yes/no): " KEEP_IP
 
 NETWORK_CONFIG_DIR="/etc/systemd/network"
