@@ -5,14 +5,23 @@ set -euo pipefail
 # ================================
 # PuppyLab Provisioning Script
 # Name: puppy-bootstrap.sh
-# Version: 1.1.2
+# Version: 1.1.3
 # Description: Provision Debian server with users, Docker, network config, and cleanup.
 # Author: Miles + ChatGPT
 # ================================
 
 LOGFILE="/var/log/puppy-bootstrap.log"
 
-# === Prompt for dry-run mode ===
+exec > >(tee -a "$LOGFILE") 2>&1
+
+echo "=== Starting PuppyLab bootstrap provisioning script v1.1.3 ==="
+
+run_cmd() {
+    echo ">>> $*"
+    "$@"
+}
+
+# === Dry run mode ===
 read -rp "Do you want to enable DRY RUN mode? (yes/no): " DRY_RUN_CONFIRMATION
 if [[ "$DRY_RUN_CONFIRMATION" == "yes" ]]; then
     DRY_RUN=true
@@ -22,18 +31,7 @@ else
     echo "Dry run mode disabled. Users will be deleted if not in whitelist."
 fi
 
-# === Start Logging ===
-exec > >(tee -a "$LOGFILE") 2>&1
-
-echo "=== Starting PuppyLab bootstrap provisioning script v1.1.2 ==="
-
-# === Functions ===
-
-run_cmd() {
-    echo ">>> $*"
-    "$@"
-}
-
+# === Hostname setup ===
 set_hostname_with_input() {
     echo "--- Setting system hostname ---"
 
@@ -61,25 +59,47 @@ set_hostname_with_input() {
     echo "Hostname set to '$NEW_HOSTNAME'."
 }
 
-# === Start of provisioning ===
-
 set_hostname_with_input
 
+# === Install essentials ===
 echo "--- Installing sudo and required packages..."
 run_cmd apt update
 run_cmd apt install -y sudo curl apt-transport-https ca-certificates gnupg lsb-release
 
-echo "--- Creating 'puppydev' user..."
-run_cmd useradd -m -s /bin/bash puppydev
-echo "Please set a password for 'puppydev':"
-run_cmd passwd puppydev
-run_cmd usermod -aG sudo puppydev
-echo "User 'puppydev' created and added to sudo group."
+# === User creation ===
+if id "puppydev" &>/dev/null; then
+    echo "User 'puppydev' already exists. Skipping creation."
+else
+    echo "--- Creating 'puppydev' user..."
+    run_cmd useradd -m -s /bin/bash puppydev
+    echo "Please set a password for 'puppydev':"
+    run_cmd passwd puppydev
+fi
 
-echo "--- Creating 'docker' user..."
-run_cmd useradd -m -s /bin/bash docker
-echo "User 'docker' created."
+if id "docker" &>/dev/null; then
+    echo "User 'docker' already exists. Skipping creation."
+else
+    echo "--- Creating 'docker' user..."
+    run_cmd useradd -m -s /bin/bash docker
+fi
 
+# === Group assignments ===
+echo "--- Adding users to groups if needed..."
+for user in puppydev docker; do
+    if groups $user | grep -qw "sudo"; then
+        echo "User '$user' already in 'sudo' group. Skipping."
+    else
+        run_cmd usermod -aG sudo $user
+    fi
+
+    if groups $user | grep -qw "docker"; then
+        echo "User '$user' already in 'docker' group. Skipping."
+    else
+        run_cmd usermod -aG docker $user
+    fi
+done
+
+# === Install Docker ===
 echo "--- Installing Docker..."
 run_cmd mkdir -m 0755 -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
@@ -99,37 +119,40 @@ else
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io
 fi
 
-run_cmd usermod -aG docker docker
-run_cmd usermod -aG docker puppydev
-
 run_cmd systemctl enable docker
 run_cmd systemctl start docker
 
-echo "--- Creating shared Docker projects directory at /opt/docker-projects..."
-run_cmd mkdir -p /opt/docker-projects
-run_cmd chown puppydev:puppydev /opt/docker-projects
+# === Directories ===
+echo "--- Creating Docker project directories if they do not exist..."
 
-DOCKER_HOME="/home/docker"
-DOCKER_USER_PROJECTS="$DOCKER_HOME/docker-projects"
-echo "--- Creating Docker projects directory for docker user at $DOCKER_USER_PROJECTS..."
-run_cmd mkdir -p "$DOCKER_USER_PROJECTS"
-run_cmd chown docker:docker "$DOCKER_USER_PROJECTS"
+create_dir_if_missing() {
+    DIR_PATH="$1"
+    OWNER="$2"
 
-PUPPYDEV_HOME="/home/puppydev"
-PUPPYDEV_USER_PROJECTS="$PUPPYDEV_HOME/docker-projects"
-echo "--- Creating Docker projects directory for puppydev user at $PUPPYDEV_USER_PROJECTS..."
-run_cmd mkdir -p "$PUPPYDEV_USER_PROJECTS"
-run_cmd chown puppydev:puppydev "$PUPPYDEV_USER_PROJECTS"
+    if [[ -d "$DIR_PATH" ]]; then
+        echo "Directory '$DIR_PATH' already exists. Skipping."
+    else
+        run_cmd mkdir -p "$DIR_PATH"
+        run_cmd chown "$OWNER":"$OWNER" "$DIR_PATH"
+        echo "Created directory '$DIR_PATH' with owner '$OWNER'."
+    fi
+}
 
+create_dir_if_missing /opt/docker-projects puppydev
+create_dir_if_missing /home/docker/docker-projects docker
+create_dir_if_missing /home/puppydev/docker-projects puppydev
+
+# === Clean bootstrap user ===
 BOOTSTRAP_USER=$(logname || echo "unknown")
-if [[ "$BOOTSTRAP_USER" != "root" && "$BOOTSTRAP_USER" != "unknown" ]]; then
+if [[ "$BOOTSTRAP_USER" != "root" && "$BOOTSTRAP_USER" != "unknown" && "$BOOTSTRAP_USER" != "puppydev" && "$BOOTSTRAP_USER" != "docker" ]]; then
     echo "--- Removing bootstrap user '$BOOTSTRAP_USER'..."
     run_cmd pkill -KILL -u "$BOOTSTRAP_USER" || true
     run_cmd userdel -r "$BOOTSTRAP_USER" || true
 else
-    echo "No bootstrap user to remove or running as root."
+    echo "No bootstrap user to remove or user is system-reserved."
 fi
 
+# === Clean up unexpected users ===
 echo "--- Cleaning up unexpected users..."
 
 WHITELIST=("root" "puppydev" "docker")
@@ -153,6 +176,7 @@ done
 
 echo "User cleanup complete."
 
+# === Static IP configuration ===
 echo "--- Static IP configuration ---"
 
 PRIMARY_INTERFACE=$(ip -o -4 route show to default | awk '{print $5}')
@@ -207,7 +231,7 @@ run_cmd systemctl restart systemd-networkd
 
 echo "Static IP configuration applied."
 
-echo "=== PuppyLab bootstrap provisioning v1.1.2 completed successfully! ==="
+echo "=== PuppyLab bootstrap provisioning v1.1.3 completed successfully! ==="
 
 read -rp "Do you want to reboot the system now? (yes/no): " REBOOT_CONFIRMATION
 if [[ "$REBOOT_CONFIRMATION" == "yes" ]]; then
