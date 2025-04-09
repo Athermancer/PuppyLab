@@ -4,7 +4,6 @@ services:
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
-    network_mode: host
     logging:
       driver: "json-file"
       options:
@@ -15,10 +14,6 @@ services:
       # DNS Ports (LAN only)
       - "53:53/tcp"
       - "53:53/udp"
-      # HTTP Web UI
-      - "80:80/tcp"
-      # HTTPS Web UI with self-signed cert
-      - "443:443/tcp"
       # Optional: DHCP (if you want Pi-hole to act as DHCP server)
       # - "67:67/udp"
 
@@ -29,6 +24,12 @@ services:
       FTLCONF_webserver_api_password: ${WEBPASSWORD}
       # Query log retention (7 days)
       FTLCONF_MAXDBDAYS: 7
+
+    labels:
+       - "traefik.enable=true"
+       - "traefik.http.routers.pihole.rule=Host(`pihole.miles-homelab.org`)"
+       - "traefik.http.routers.pihole.entrypoints=web"
+       - "traefik.http.services.pihole.loadbalancer.server.port=80"
 
     volumes:
       # Persistent data storage

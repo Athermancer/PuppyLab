@@ -119,7 +119,7 @@ echo \
 
 run_cmd apt update
 echo "Do you want to install Docker plugins (buildx and compose)? (yes/no): "
-read -r INSTALL_PLUGINS
+read -r  INSTALL_PLUGINS
 if [[ "$INSTALL_PLUGINS" == "yes" ]]; then
     run_cmd apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
