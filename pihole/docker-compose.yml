@@ -1,14 +1,10 @@
 version: "3.8"
-
-networks:
-  default:
-    driver: host
 services:
   
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
-
+    network_mode: host
     logging:
       driver: "json-file"
       options:
