@@ -5,7 +5,7 @@ set -euo pipefail
 # ================================
 # PuppyLab Master Node Provisioning Script
 # Name: puppy-master-bootstrap.sh
-# Version: 1.2.1
+# Version: 1.2.2
 # Description: Provision Master Node with Docker, Portainer, Ansible, and automation user.
 # Author: Miles + ChatGPT
 # ================================
@@ -21,7 +21,7 @@ fi
 
 exec > >(ts '[%Y-%m-%d %H:%M:%S] ' | tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab Master Node provisioning script v1.2.1 ==="
+echo "=== Starting PuppyLab Master Node provisioning script v1.2.2 ==="
 
 run_cmd() {
     echo ">>> $*"
@@ -55,8 +55,10 @@ for user in puppy-automation puppydev docker; do
     if id "$user" &>/dev/null; then
         echo "User '$user' already exists. Skipping creation."
     else
-        echo "Creating user '$user'..."
+        echo "--- Creating user '$user'..."
         run_cmd adduser --shell /bin/bash "$user"
+        echo "Please set a password for user '$user':"
+        run_cmd passwd "$user"
     fi
 done
 
