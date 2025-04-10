@@ -5,7 +5,7 @@ set -euo pipefail
 # ================================
 # PuppyLab Master Node Provisioning Script
 # Name: puppy-master-bootstrap.sh
-# Version: 1.2.0
+# Version: 1.2.1
 # Description: Provision Master Node with Docker, Portainer, Ansible, and automation user.
 # Author: Miles + ChatGPT
 # ================================
@@ -21,7 +21,7 @@ fi
 
 exec > >(ts '[%Y-%m-%d %H:%M:%S] ' | tee -a "$LOGFILE") 2>&1
 
-echo "=== Starting PuppyLab Master Node provisioning script v1.2.0 ==="
+echo "=== Starting PuppyLab Master Node provisioning script v1.2.1 ==="
 
 run_cmd() {
     echo ">>> $*"
@@ -48,7 +48,7 @@ fi
 # Install essentials
 echo "Installing essential packages..."
 run_cmd apt update
-run_cmd apt install -y sudo curl apt-transport-https ca-certificates gnupg lsb-release git ansible
+run_cmd apt install -y sudo curl apt-transport-https ca-certificates gnupg lsb-release git ansible adduser
 
 # Create users: puppy-automation, puppydev, docker
 for user in puppy-automation puppydev docker; do
@@ -56,9 +56,7 @@ for user in puppy-automation puppydev docker; do
         echo "User '$user' already exists. Skipping creation."
     else
         echo "Creating user '$user'..."
-        run_cmd useradd -m -s /bin/bash "$user"
-        echo "Please set a password for user '$user':"
-        run_cmd passwd "$user"
+        run_cmd adduser --shell /bin/bash "$user"
     fi
 done
 
@@ -71,6 +69,7 @@ for user in puppydev docker; do
             run_cmd usermod -aG "$group" "$user"
         fi
     done
+
 done
 
 # Ensure puppy-automation user is ONLY in sudo group (remove from docker if exists)
@@ -147,7 +146,7 @@ cat <<EOF > /usr/local/bin/remove-bootstrap-user.sh
 if id "bootstrap" &>/dev/null; then
     echo "Removing 'bootstrap' user..."
     pkill -KILL -u "bootstrap" || true
-    userdel -r "bootstrap" || true
+    deluser --remove-home "bootstrap" || true
 else
     echo "'bootstrap' user does not exist. Skipping."
 fi
